@@ -89,7 +89,7 @@ class QuickReorderController extends Controller
 
         // Validate that order quantity doesn't exceed distributor warehouse stock
         foreach ($validated['items'] as $item) {
-            if (!empty($item['product_id']) && !empty($validated['distributor_id'])) {
+            if (! empty($item['product_id']) && ! empty($validated['distributor_id'])) {
                 $distributorInventory = DistributorInventory::where('user_id', $validated['distributor_id'])
                     ->where('product_id', $item['product_id'])
                     ->first();
@@ -98,6 +98,7 @@ class QuickReorderController extends Controller
 
                 if ($item['quantity'] > $availableQuantity) {
                     $product = Product::find($item['product_id']);
+
                     return back()->withErrors([
                         'items' => "Only {$availableQuantity} units of {$product->name} available in warehouse.",
                     ])->withInput();
@@ -120,9 +121,9 @@ class QuickReorderController extends Controller
                     'payment_method' => $validated['payment_method'],
                     'items' => $validated['items'],
                     'total_amount' => $totalAmount,
-                ]
+                ],
             ]);
-            
+
             return redirect()->route('paypal.process');
         }
 

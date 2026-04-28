@@ -9,15 +9,14 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
-use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\RegisterResponse;
+use Laravel\Fortify\Features;
+use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Http\Responses\LoginResponse;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -54,7 +53,7 @@ class FortifyServiceProvider extends ServiceProvider
             $credentials = $request->only(Fortify::username(), 'password');
 
             // First verify credentials without logging in
-            if (!Auth::attempt($credentials, false)) {
+            if (! Auth::attempt($credentials, false)) {
                 return null;
             }
 
@@ -66,6 +65,7 @@ class FortifyServiceProvider extends ServiceProvider
                 // Store email and show pending message
                 $request->session()->put('email_for_approval_check', $user->email);
                 $request->session()->put('status', 'Your account is pending admin approval. Please wait for approval before logging in.');
+
                 return null;
             }
 
@@ -73,6 +73,7 @@ class FortifyServiceProvider extends ServiceProvider
             if ($user && $user->isRejected()) {
                 Auth::logout();
                 $request->session()->put('status', 'Your account has been rejected. Please contact support for more information.');
+
                 return null;
             }
 
@@ -86,7 +87,8 @@ class FortifyServiceProvider extends ServiceProvider
 
         // Bind custom LoginResponse for role-based redirect
         $this->app->singleton(LoginResponseContract::class, function ($app) {
-            return new class implements LoginResponseContract {
+            return new class implements LoginResponseContract
+            {
                 public function toResponse($request)
                 {
                     $user = Auth::user();
@@ -170,6 +172,7 @@ class FortifyServiceProvider extends ServiceProvider
                     // User has been approved, show success message instead
                     // Persist so refresh keeps showing it until user clicks proceed
                     $request->session()->put('status', 'Admin approved success! You can now login with your credentials.');
+
                     return 'Admin approved success! You can now login with your credentials.';
                 }
 
@@ -177,11 +180,13 @@ class FortifyServiceProvider extends ServiceProvider
                     // User has been rejected
                     $request->session()->put('status', 'Your account has been rejected. Please contact support for more information.');
                     $request->session()->forget('email_for_approval_check');
+
                     return 'Your account has been rejected. Please contact support for more information.';
                 }
 
                 // Still pending - persist the status so refresh keeps showing it
                 $request->session()->put('status', $sessionStatus);
+
                 return $sessionStatus;
             }
 
@@ -192,18 +197,21 @@ class FortifyServiceProvider extends ServiceProvider
         // If status is the approved message, persist it
         if ($sessionStatus && str_contains($sessionStatus, 'Admin approved success')) {
             $request->session()->put('status', $sessionStatus);
+
             return $sessionStatus;
         }
 
         // If status is the rejected message, persist it
         if ($sessionStatus && str_contains($sessionStatus, 'has been rejected')) {
             $request->session()->put('status', $sessionStatus);
+
             return $sessionStatus;
         }
 
         // If status is the "Account created successfully" message (from registration), persist it
         if ($sessionStatus && str_contains($sessionStatus, 'Account created successfully')) {
             $request->session()->put('status', $sessionStatus);
+
             return $sessionStatus;
         }
 
@@ -216,7 +224,8 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureRegistrationResponse(): void
     {
         $this->app->singleton(RegisterResponse::class, function () {
-            return new class implements RegisterResponse {
+            return new class implements RegisterResponse
+            {
                 public function toResponse($request)
                 {
                     // Logout the user after registration (Fortify auto-logs in)
@@ -224,7 +233,7 @@ class FortifyServiceProvider extends ServiceProvider
 
                     // Store the email for approval status checking on login page
                     $request->session()->put('email_for_approval_check', $request->input('email'));
-                    
+
                     // Store status in session (not flash, so it persists on refresh)
                     $request->session()->put('status', 'Account created successfully! Your account is pending admin approval. You will be able to login once approved.');
 

@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Promotion;
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class DeactivateExpiredPromotions extends Command
 {
@@ -36,6 +36,7 @@ class DeactivateExpiredPromotions extends Command
 
         if ($expiredPromotions->isEmpty()) {
             $this->info('No expired promotions found.');
+
             return Command::SUCCESS;
         }
 
@@ -48,7 +49,7 @@ class DeactivateExpiredPromotions extends Command
         }
 
         $this->info("Successfully deactivated {$count} expired promotion(s).");
-        
+
         return Command::SUCCESS;
     }
 }

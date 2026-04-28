@@ -5,13 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Complaint;
 use App\Models\ComplaintItem;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 
 class ComplaintController extends Controller
 {
@@ -59,7 +57,7 @@ class ComplaintController extends Controller
         \Log::info('=== COMPLAINT SUBMISSION DEBUG ===');
         \Log::info('Request data keys:', array_keys($request->all()));
         \Log::info('Has files:', array_keys($request->allFiles()));
-        
+
         // Log each product's proof_image field
         if ($request->has('products')) {
             $products = $request->input('products');
@@ -68,7 +66,7 @@ class ComplaintController extends Controller
                 \Log::info("Product {$index} - hasFile: {$hasFile}");
             }
         }
-        
+
         $validated = $request->validate([
             'order_id' => 'required|integer|exists:orders,id',
             'products' => 'required|array|min:1',
@@ -103,7 +101,7 @@ class ComplaintController extends Controller
             $complaint = Complaint::create([
                 'user_id' => Auth::id(),
                 'order_id' => $validated['order_id'],
-                'product_name' => count($validated['products']) . ' products',
+                'product_name' => count($validated['products']).' products',
                 'quantity' => array_sum(array_column($validated['products'], 'quantity')),
                 'description' => $validated['description'],
                 'status' => 'pending',
@@ -131,18 +129,18 @@ class ComplaintController extends Controller
                     'quantity' => $product['quantity'],
                     'proof_image_path' => $proofImagePath,
                 ]);
-                
-                \Log::info("Created complaint item {$item->id} with proof_image_path: " . ($proofImagePath ?? 'NULL'));
+
+                \Log::info("Created complaint item {$item->id} with proof_image_path: ".($proofImagePath ?? 'NULL'));
             }
 
             DB::commit();
 
             return redirect()->route('complaints.index')
-                ->with('success', 'Complaint submitted successfully! Your complaint ID is: ' . $complaint->complaint_id);
+                ->with('success', 'Complaint submitted successfully! Your complaint ID is: '.$complaint->complaint_id);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Complaint store error: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            \Log::error('Complaint store error: '.$e->getMessage());
+            \Log::error('Stack trace: '.$e->getTraceAsString());
             throw $e;
         }
     }

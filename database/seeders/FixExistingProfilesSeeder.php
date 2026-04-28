@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\ShopProfile;
 use App\Models\DistributorProfile;
+use App\Models\ShopProfile;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class FixExistingProfilesSeeder extends Seeder
 {
@@ -20,8 +20,8 @@ class FixExistingProfilesSeeder extends Seeder
         $retailers = User::where('role', 'retailer')->get();
         foreach ($retailers as $retailer) {
             $shopProfile = $retailer->shopProfile;
-            
-            if (!$shopProfile) {
+
+            if (! $shopProfile) {
                 // Create shop profile if it doesn't exist
                 ShopProfile::create([
                     'user_id' => $retailer->id,
@@ -38,8 +38,8 @@ class FixExistingProfilesSeeder extends Seeder
         $distributors = User::where('role', 'distributor')->get();
         foreach ($distributors as $distributor) {
             $distributorProfile = $distributor->distributorProfile;
-            
-            if (!$distributorProfile) {
+
+            if (! $distributorProfile) {
                 // Create distributor profile if it doesn't exist
                 DistributorProfile::create([
                     'user_id' => $distributor->id,

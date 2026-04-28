@@ -33,7 +33,7 @@ class Complaint extends Model
         parent::boot();
 
         static::creating(function ($complaint) {
-            $complaint->complaint_id = 'CMP-' . strtoupper(uniqid());
+            $complaint->complaint_id = 'CMP-'.strtoupper(uniqid());
         });
     }
 

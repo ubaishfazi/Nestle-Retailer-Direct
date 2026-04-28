@@ -16,7 +16,7 @@ class Retailer
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || !Auth::user()->isRetailer()) {
+        if (! Auth::check() || ! Auth::user()->isRetailer()) {
             // Redirect users to their appropriate dashboard based on role
             if (Auth::check()) {
                 $user = Auth::user();

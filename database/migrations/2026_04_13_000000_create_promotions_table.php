@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('usage_limit')->nullable();
             $table->integer('usage_count')->default(0);
             $table->timestamps();
-            
+
             $table->index(['is_active', 'start_date', 'expiry_date']);
             $table->index('promo_code');
         });

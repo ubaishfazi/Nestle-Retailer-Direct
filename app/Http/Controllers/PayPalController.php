@@ -7,7 +7,6 @@ use App\Models\OrderItem;
 use App\Models\Promotion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PayPalController extends Controller
@@ -19,21 +18,21 @@ class PayPalController extends Controller
     public function processPayment(Request $request)
     {
         $orderData = null;
-        
+
         // Check if order data comes from POST request (quick-reorder.tsx)
         $orderDataJson = $request->input('order_data');
         if ($orderDataJson) {
             $orderData = json_decode($orderDataJson, true);
-            if (!$orderData) {
+            if (! $orderData) {
                 return redirect()->back()->withErrors(['paypal' => 'Invalid order data.']);
             }
-        } 
+        }
         // Check if order data already in session (QuickReorderController redirect)
         elseif (session()->has('pending_paypal_order')) {
             $orderData = session('pending_paypal_order');
         }
-        
-        if (!$orderData) {
+
+        if (! $orderData) {
             return redirect()->back()->withErrors(['paypal' => 'No order data provided.']);
         }
 
@@ -79,7 +78,7 @@ class PayPalController extends Controller
                 'promotion_id' => $promotionId,
                 'discount_amount' => $discountAmount,
                 'promo_code' => $promoCode,
-            ]
+            ],
         ]);
 
         // Check if PayPal credentials are configured
@@ -87,43 +86,43 @@ class PayPalController extends Controller
         $useMockPayment = empty($paypalConfig['sandbox']['username']) || empty($paypalConfig['sandbox']['password']);
 
         // If credentials are configured, use real PayPal
-        if (!$useMockPayment) {
+        if (! $useMockPayment) {
             try {
                 $provider = new PayPalClient;
                 $provider->setApiCredentials($paypalConfig);
                 $provider->getAccessToken();
 
                 $response = $provider->createOrder([
-                    "intent" => "CAPTURE",
-                    "purchase_units" => [
+                    'intent' => 'CAPTURE',
+                    'purchase_units' => [
                         [
-                            "amount" => [
-                                "currency_code" => "USD",
-                                "value" => number_format($totalAmount, 2, '.', ''),
-                                "breakdown" => [
-                                    "item_total" => [
-                                        "currency_code" => "USD",
-                                        "value" => number_format($totalAmount, 2, '.', ''),
-                                    ]
-                                ]
+                            'amount' => [
+                                'currency_code' => 'USD',
+                                'value' => number_format($totalAmount, 2, '.', ''),
+                                'breakdown' => [
+                                    'item_total' => [
+                                        'currency_code' => 'USD',
+                                        'value' => number_format($totalAmount, 2, '.', ''),
+                                    ],
+                                ],
                             ],
-                            "description" => "Quick Reorder Order",
-                            "items" => collect($validated['items'])->map(function ($item) {
+                            'description' => 'Quick Reorder Order',
+                            'items' => collect($validated['items'])->map(function ($item) {
                                 return [
-                                    "name" => $item['product_name'],
-                                    "quantity" => (string) $item['quantity'],
-                                    "unit_amount" => [
-                                        "currency_code" => "USD",
-                                        "value" => number_format($item['price'], 2, '.', ''),
-                                    ]
+                                    'name' => $item['product_name'],
+                                    'quantity' => (string) $item['quantity'],
+                                    'unit_amount' => [
+                                        'currency_code' => 'USD',
+                                        'value' => number_format($item['price'], 2, '.', ''),
+                                    ],
                                 ];
                             })->toArray(),
-                        ]
+                        ],
                     ],
-                    "application_context" => [
-                        "return_url" => route('paypal.success'),
-                        "cancel_url" => route('paypal.cancel'),
-                    ]
+                    'application_context' => [
+                        'return_url' => route('paypal.success'),
+                        'cancel_url' => route('paypal.cancel'),
+                    ],
                 ]);
 
                 if (isset($response['id']) && $response['id']) {
@@ -137,8 +136,9 @@ class PayPalController extends Controller
 
                 return redirect()->back()->withErrors(['paypal' => 'Failed to create PayPal payment.']);
             } catch (\Exception $e) {
-                \Log::error('PayPal API Error: ' . $e->getMessage());
-                return redirect()->back()->withErrors(['paypal' => 'PayPal API error: ' . $e->getMessage()]);
+                \Log::error('PayPal API Error: '.$e->getMessage());
+
+                return redirect()->back()->withErrors(['paypal' => 'PayPal API error: '.$e->getMessage()]);
             }
         }
 
@@ -160,7 +160,7 @@ class PayPalController extends Controller
         // Get pending order data from session
         $orderData = session('pending_paypal_order');
 
-        if (!$orderData) {
+        if (! $orderData) {
             return redirect()->route('quick-reorder')->withErrors(['paypal' => 'No pending order found. Please place your order again.']);
         }
 
@@ -177,7 +177,7 @@ class PayPalController extends Controller
                 'total_amount' => $orderData['total_amount'],
                 'payment_method' => $orderData['payment_method'],
                 'payment_status' => 'paid',
-                'paypal_transaction_id' => 'MOCK-' . strtoupper(uniqid()),
+                'paypal_transaction_id' => 'MOCK-'.strtoupper(uniqid()),
                 'promotion_id' => $orderData['promotion_id'] ?? null,
                 'discount_amount' => $orderData['discount_amount'] ?? 0,
                 'promo_code' => $orderData['promo_code'] ?? null,
@@ -264,8 +264,9 @@ class PayPalController extends Controller
 
             return redirect()->back()->withErrors(['paypal' => 'Payment capture failed.']);
         } catch (\Exception $e) {
-            \Log::error('PayPal capture error: ' . $e->getMessage());
-            return redirect()->back()->withErrors(['paypal' => 'Payment capture failed: ' . $e->getMessage()]);
+            \Log::error('PayPal capture error: '.$e->getMessage());
+
+            return redirect()->back()->withErrors(['paypal' => 'Payment capture failed: '.$e->getMessage()]);
         }
     }
 

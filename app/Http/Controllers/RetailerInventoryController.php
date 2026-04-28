@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\RetailerInventory;
-use Illuminate\Http\Request;
 
 class RetailerInventoryController extends Controller
 {
@@ -36,9 +35,9 @@ class RetailerInventoryController extends Controller
 
         $stats = [
             'total_products' => $products->count(),
-            'in_stock' => $products->filter(fn($p) => $p['stock_status'] === 'in_stock')->count(),
-            'low_stock' => $products->filter(fn($p) => $p['stock_status'] === 'low_stock')->count(),
-            'out_of_stock' => $products->filter(fn($p) => $p['stock_status'] === 'out_of_stock')->count(),
+            'in_stock' => $products->filter(fn ($p) => $p['stock_status'] === 'in_stock')->count(),
+            'low_stock' => $products->filter(fn ($p) => $p['stock_status'] === 'low_stock')->count(),
+            'out_of_stock' => $products->filter(fn ($p) => $p['stock_status'] === 'out_of_stock')->count(),
         ];
 
         return inertia('retailer/inventory', [

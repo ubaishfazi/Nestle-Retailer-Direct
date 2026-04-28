@@ -1,0 +1,3 @@
+Error
+app\Services\InvoiceService.php:67
+Class "Barryvdh\DomPDF\Facade\Pdf" not found

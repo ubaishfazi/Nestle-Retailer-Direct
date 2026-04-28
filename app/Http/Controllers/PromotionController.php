@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Promotion;
 use App\Models\Product;
+use App\Models\Promotion;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class PromotionController extends Controller
 {
@@ -91,7 +91,7 @@ class PromotionController extends Controller
             'usage_limit' => $validated['usage_limit'] ?? null,
         ]);
 
-        if (!empty($validated['product_ids'])) {
+        if (! empty($validated['product_ids'])) {
             $promotion->products()->attach($validated['product_ids']);
         }
 
@@ -134,7 +134,7 @@ class PromotionController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'promo_code' => 'required|string|unique:promotions,promo_code,' . $promotion->id,
+            'promo_code' => 'required|string|unique:promotions,promo_code,'.$promotion->id,
             'discount_type' => 'required|in:percentage,fixed',
             'discount_value' => 'required|numeric|min:0',
             'minimum_order_amount' => 'nullable|numeric|min:0',
@@ -161,7 +161,7 @@ class PromotionController extends Controller
             'usage_limit' => $validated['usage_limit'] ?? null,
         ]);
 
-        if (!empty($validated['product_ids'])) {
+        if (! empty($validated['product_ids'])) {
             $promotion->products()->sync($validated['product_ids']);
         } else {
             $promotion->products()->detach();
@@ -196,21 +196,21 @@ class PromotionController extends Controller
 
         $promotion = Promotion::where('promo_code', strtoupper($validated['promo_code']))->first();
 
-        if (!$promotion) {
+        if (! $promotion) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid promo code.',
             ], 422);
         }
 
-        if (!$promotion->isValid()) {
+        if (! $promotion->isValid()) {
             $message = 'This promotion is ';
-            if (!$promotion->is_active) {
+            if (! $promotion->is_active) {
                 $message .= 'no longer active.';
             } elseif (Carbon::now()->lt($promotion->start_date)) {
-                $message .= 'not yet started. It will begin on ' . $promotion->start_date->format('M d, Y');
+                $message .= 'not yet started. It will begin on '.$promotion->start_date->format('M d, Y');
             } elseif (Carbon::now()->gt($promotion->expiry_date)) {
-                $message .= 'expired. It expired on ' . $promotion->expiry_date->format('M d, Y');
+                $message .= 'expired. It expired on '.$promotion->expiry_date->format('M d, Y');
             } else {
                 $message .= 'no longer available.';
             }
@@ -253,12 +253,12 @@ class PromotionController extends Controller
     {
         $prefix = 'NESTLE';
         $random = strtoupper(Str::random(6));
-        $promoCode = $prefix . $random;
+        $promoCode = $prefix.$random;
 
         // Ensure uniqueness
         while (Promotion::where('promo_code', $promoCode)->exists()) {
             $random = strtoupper(Str::random(6));
-            $promoCode = $prefix . $random;
+            $promoCode = $prefix.$random;
         }
 
         return response()->json([
@@ -316,8 +316,8 @@ class PromotionController extends Controller
     {
         $now = Carbon::now();
         $status = 'inactive';
-        
-        if (!$promotion->is_active) {
+
+        if (! $promotion->is_active) {
             $status = 'inactive';
         } elseif ($now->lt($promotion->start_date)) {
             $status = 'scheduled';

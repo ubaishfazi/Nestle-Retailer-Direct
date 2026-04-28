@@ -1,7 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import { Clock, Package, Calendar, DollarSign, ChevronRight, AlertCircle, CheckCircle, XCircle, Tag } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
 interface OrderItem {
@@ -69,6 +69,7 @@ export default function MyOrderRecords({ orders, stats }: Props) {
     const filteredOrders = filter === 'all' ? orders : orders.filter(o => o.status === filter);
     const pendingOrders = filteredOrders.filter(o => o.status === 'pending');
     const otherOrders = filteredOrders.filter(o => o.status !== 'pending');
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-start justify-center py-4 px-3 md:py-8">
             <Head title="My Orders" />
@@ -384,16 +385,30 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
                                     #{order.id}
                                 </div>
                             </div>
-                            <div className="min-w-0 flex-1">
-                                <div className="font-bold text-sm md:text-base text-slate-900 truncate">Order #{order.id}</div>
-                                <div className="text-xs text-slate-600 font-medium truncate">
-                                    Dist: {order.distributor_name}
+                                <div className="min-w-0 flex-1">
+                                    <div className="font-bold text-sm md:text-base text-slate-900 truncate">Order #{order.id}</div>
+                                    <div className="text-xs text-slate-600 font-medium truncate">
+                                        Dist: {order.distributor_name}
+                                    </div>
+                                    {order.has_invoice && (
+                                        <a
+                                            href={`/invoices/${order.invoice_number}/view`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-xs inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-600 hover:bg-amber-100 transition-colors font-medium"
+                                            title="View Invoice"
+                                        >
+                                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Invoice
+                                        </a>
+                                    )}
+                                    <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                        <Clock className="h-3 w-3" />
+                                        {order.created_date}
+                                    </div>
                                 </div>
-                                <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {order.created_date}
-                                </div>
-                            </div>
                         </div>
                         <Badge className={getStatusBadgeClass(order.status)} variant="outline">
                             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}

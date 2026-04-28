@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Complaint;
 use App\Models\DistributorInventory;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\RetailerInventory;
 use App\Models\User;
+use App\Services\InvoiceService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class DistributorController extends Controller
 {
@@ -89,7 +88,7 @@ class DistributorController extends Controller
     public function retailerOrders(Request $request)
     {
         $distributorId = auth()->id();
-        
+
         $query = Order::with(['user', 'items'])
             ->where('distributor_id', $distributorId);
 
@@ -205,7 +204,7 @@ class DistributorController extends Controller
 
         // Process each order item
         foreach ($order->items as $item) {
-            if (!empty($item->product_id)) {
+            if (! empty($item->product_id)) {
                 // Decrease stock from distributor warehouse
                 $distributorInventory = DistributorInventory::where('user_id', $distributorId)
                     ->where('product_id', $item->product_id)
@@ -234,7 +233,21 @@ class DistributorController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Order approved successfully!');
+        // Generate invoice automatically after order approval (digital invoice archive)
+        try {
+            app(InvoiceService::class)->generateInvoice($order);
+            \Log::info('Invoice generated automatically for order', [
+                'order_id' => $order->id,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to generate invoice for order', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+            // Don't fail the approval if invoice generation fails
+        }
+
+        return redirect()->back()->with('success', 'Order approved successfully! Invoice has been generated.');
     }
 
     /**
@@ -246,8 +259,9 @@ class DistributorController extends Controller
         if ($order->distributor_id !== auth()->id()) {
             abort(403, 'Unauthorized');
         }
-        
+
         $order->update(['status' => 'rejected']);
+
         return redirect()->back()->with('success', 'Order rejected.');
     }
 
@@ -268,7 +282,7 @@ class DistributorController extends Controller
 
         // Process each order item
         foreach ($order->items as $item) {
-            if (!empty($item->product_id)) {
+            if (! empty($item->product_id)) {
                 // Decrease stock from distributor warehouse
                 $distributorInventory = DistributorInventory::where('user_id', $distributorId)
                     ->where('product_id', $item->product_id)
@@ -297,7 +311,21 @@ class DistributorController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Order approved successfully!');
+        // Generate invoice automatically after order approval (digital invoice archive)
+        try {
+            app(InvoiceService::class)->generateInvoice($order);
+            \Log::info('Invoice generated automatically for order', [
+                'order_id' => $order->id,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to generate invoice for order', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+            // Don't fail the approval if invoice generation fails
+        }
+
+        return redirect()->back()->with('success', 'Order approved successfully! Invoice has been generated.');
     }
 
     /**
@@ -306,6 +334,7 @@ class DistributorController extends Controller
     public function rejectOrder(Order $order)
     {
         $order->update(['status' => 'rejected']);
+
         return redirect()->back()->with('success', 'Order rejected.');
     }
 
@@ -331,7 +360,7 @@ class DistributorController extends Controller
 
         // Process each order item
         foreach ($order->items as $item) {
-            if (!empty($item->product_id)) {
+            if (! empty($item->product_id)) {
                 // Decrease stock from distributor warehouse
                 $distributorInventory = DistributorInventory::where('user_id', $distributorId)
                     ->where('product_id', $item->product_id)
@@ -360,7 +389,21 @@ class DistributorController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Order approved successfully!');
+        // Generate invoice automatically after order approval (digital invoice archive)
+        try {
+            app(InvoiceService::class)->generateInvoice($order);
+            \Log::info('Invoice generated automatically for order', [
+                'order_id' => $order->id,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to generate invoice for order', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+            // Don't fail the approval if invoice generation fails
+        }
+
+        return redirect()->back()->with('success', 'Order approved successfully! Invoice has been generated.');
     }
 
     /**
@@ -372,8 +415,9 @@ class DistributorController extends Controller
         if ($order->distributor_id !== auth()->id()) {
             abort(403, 'Unauthorized');
         }
-        
+
         $order->update(['status' => 'rejected']);
+
         return redirect()->back()->with('success', 'Order rejected.');
     }
 
@@ -514,9 +558,9 @@ class DistributorController extends Controller
 
         $stats = [
             'total_products' => $products->count(),
-            'in_stock' => $products->filter(fn($p) => $p['stock_status'] === 'in_stock')->count(),
-            'low_stock' => $products->filter(fn($p) => $p['stock_status'] === 'low_stock')->count(),
-            'out_of_stock' => $products->filter(fn($p) => $p['stock_status'] === 'out_of_stock')->count(),
+            'in_stock' => $products->filter(fn ($p) => $p['stock_status'] === 'in_stock')->count(),
+            'low_stock' => $products->filter(fn ($p) => $p['stock_status'] === 'low_stock')->count(),
+            'out_of_stock' => $products->filter(fn ($p) => $p['stock_status'] === 'out_of_stock')->count(),
         ];
 
         return inertia('distributor/warehouse-inventory', [

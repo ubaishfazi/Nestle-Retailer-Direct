@@ -1,3 +1,0 @@
-Illuminate\Database\QueryException
-vendor\laravel\framework\src\Illuminate\Database\Connection.php:838
-Database file at path [C:\Users\LAPTOP i7\Desktop\Nestle-Retailer-Direct-main (1)\Nestle-Retailer-Direct-main\database\database.sqlite] does not exist. Ensure this is an absolute path to the database. (Connection: sqlite, Database: C:\Users\LAPTOP i7\Desktop\Nestle-Retailer-Direct-main (1)\Nestle-Retailer-Direct-main\database\database.sqlite, SQL: select * from "sessions" where "id" = crHFhOjqvcYxXlG6mer10UEUo9ySFwgMdb8uvIMP limit 1)its suucce

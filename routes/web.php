@@ -1,21 +1,23 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use Laravel\Fortify\Features;
+use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\Dashboard\AccountsController;
-use App\Http\Controllers\OrderController;
 use App\Http\Controllers\DistributorController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\StockController;
+use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\QuickReorderController;
 use App\Http\Controllers\RetailerInventoryController;
-use App\Http\Controllers\PayPalController;
-use App\Http\Controllers\UserApprovalsController;
-use App\Http\Controllers\ComplaintController;
-use App\Http\Controllers\PromotionController;
-use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\PasswordController;
+use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\StockController;
+use App\Http\Controllers\UserApprovalsController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Laravel\Fortify\Features;
 
 // Home route - redirects based on user role
 Route::get('/', function () {
@@ -26,18 +28,21 @@ Route::get('/', function () {
         if (Auth::user()->isAdmin()) {
             return redirect()->route('dashboard');
         }
+
         // Retailers stay on the home page (nestle-system-analysis)
         return inertia('nestle-system-analysis', [
             'canRegister' => Features::enabled(Features::registration()),
         ]);
     }
+
     // Redirect to login for unauthenticated users
     return redirect()->route('login');
 })->name('home');
 
 // Clear approval status session (used after admin approval)
-Route::post('/clear-approval-status', function (\Illuminate\Http\Request $request) {
+Route::post('/clear-approval-status', function (Request $request) {
     $request->session()->forget(['status', 'email_for_approval_check']);
+
     return redirect()->route('login');
 })->name('clear-approval-status');
 
@@ -66,7 +71,7 @@ Route::middleware(['auth', 'verified', 'distributor'])->group(function () {
     Route::get('/distributor/notifications', [DistributorController::class, 'notifications'])->name('distributor.notifications');
     Route::get('/distributor/warehouse-inventory', [DistributorController::class, 'warehouseInventory'])->name('distributor.warehouse-inventory');
     Route::post('/distributor/warehouse-inventory/{product}/restock', [DistributorController::class, 'restock'])->name('distributor.warehouse-inventory.restock');
-    
+
     // Distributor complaint routes
     Route::get('/distributor/complaints', [ComplaintController::class, 'distributorIndex'])->name('distributor.complaints.index');
     Route::get('/distributor/complaints/{complaint}', [ComplaintController::class, 'distributorShow'])->name('distributor.complaints.show');
@@ -79,15 +84,24 @@ Route::middleware(['auth', 'verified', 'distributor'])->group(function () {
 Route::middleware(['auth', 'verified', 'retailer'])->group(function () {
     Route::get('/retailer/inventory', [RetailerInventoryController::class, 'index'])->name('retailer.inventory');
     Route::get('/retailer/promotions', [PromotionController::class, 'retailerPromotions'])->name('retailer.promotions.index');
-    
+
     // Retailer complaint routes
     Route::get('/complaints/create', [ComplaintController::class, 'create'])->name('complaints.create');
     Route::post('/complaints', [ComplaintController::class, 'store'])->name('complaints.store');
     Route::get('/complaints', [ComplaintController::class, 'index'])->name('complaints.index');
 });
 
-Route::middleware(['auth'])->get('/quick-reorder', [QuickReorderController::class, 'index'])->name('quick-reorder');
-Route::middleware(['auth'])->get('/api/distributor/{distributorId}/inventory', [QuickReorderController::class, 'getDistributorInventory']);
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Invoice routes (digital invoice archive)
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
+    Route::get('/invoices/{invoice}/view', [InvoiceController::class, 'view'])->name('invoices.view');
+});
+
+Route::middleware(['auth', 'verified', 'retailer'])->group(function () {
+    Route::get('/quick-reorder', [QuickReorderController::class, 'index'])->name('quick-reorder');
+    Route::get('/api/distributor/{distributorId}/inventory', [QuickReorderController::class, 'getDistributorInventory']);
+});
 
 // Stock/Inventory routes (not related to dashboard)
 Route::middleware(['auth'])->get('/stock', [StockController::class, 'index'])->name('stock.index');
@@ -96,11 +110,13 @@ Route::middleware(['auth'])->put('/stock/{product}', [StockController::class, 'u
 // Logout route (GET for link, POST for form)
 Route::get('/logout', function () {
     Auth::logout();
+
     return redirect()->route('home');
 })->name('logout');
 
 Route::post('/logout', function () {
     Auth::logout();
+
     return redirect()->route('home');
 });
 

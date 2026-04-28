@@ -9,10 +9,9 @@ use App\Models\Product;
 use App\Models\Promotion;
 use App\Models\RetailerInventory;
 use App\Models\User;
+use App\Services\InvoiceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
 
 class OrderController extends Controller
 {
@@ -45,7 +44,7 @@ class OrderController extends Controller
             ->where('approval_status', 'approved')
             ->first();
 
-        if (!$distributor) {
+        if (! $distributor) {
             return response()->json([
                 'success' => false,
                 'errors' => ['distributor_id' => 'Selected distributor is not available.'],
@@ -54,7 +53,7 @@ class OrderController extends Controller
 
         // Validate that order quantity doesn't exceed distributor warehouse stock
         foreach ($validated['items'] as $item) {
-            if (!empty($item['product_id']) && !empty($validated['distributor_id'])) {
+            if (! empty($item['product_id']) && ! empty($validated['distributor_id'])) {
                 $distributorInventory = DistributorInventory::where('user_id', $validated['distributor_id'])
                     ->where('product_id', $item['product_id'])
                     ->first();
@@ -92,7 +91,7 @@ class OrderController extends Controller
         $discountAmount = 0;
         $promotionId = null;
 
-        if (!empty($validated['promo_code'])) {
+        if (! empty($validated['promo_code'])) {
             $promotion = Promotion::where('promo_code', strtoupper($validated['promo_code']))->first();
 
             if ($promotion && $promotion->isValid()) {
@@ -261,7 +260,7 @@ class OrderController extends Controller
 
         // Process each order item
         foreach ($order->items as $item) {
-            if (!empty($item->product_id)) {
+            if (! empty($item->product_id)) {
                 // Decrease stock from distributor warehouse
                 $product = Product::find($item->product_id);
                 if ($product) {
@@ -288,7 +287,22 @@ class OrderController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Order approved successfully!');
+        // Generate invoice automatically after order approval (digital invoice archive)
+        try {
+            $invoice = app(InvoiceService::class)->generateInvoice($order);
+            \Log::info('Invoice generated automatically for order', [
+                'order_id' => $order->id,
+                'invoice_number' => $invoice->invoice_number,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to generate invoice for order', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+            // Don't fail the approval if invoice generation fails
+        }
+
+        return redirect()->back()->with('success', 'Order approved successfully! Invoice has been generated.');
     }
 
     /**
@@ -306,7 +320,7 @@ class OrderController extends Controller
      */
     public function myOrders()
     {
-        $orders = Order::with(['items', 'distributor'])
+        $orders = Order::with(['items', 'distributor', 'invoice'])
             ->where('user_id', Auth::id())
             ->latest()
             ->get()
@@ -320,6 +334,8 @@ class OrderController extends Controller
                     'created_at' => $order->created_at->diffForHumans(),
                     'created_date' => $order->created_at->format('M d, Y'),
                     'distributor_name' => $order->distributor->name ?? 'N/A',
+                    'has_invoice' => $order->invoice !== null,
+                    'invoice_number' => $order->invoice?->invoice_number,
                     'items' => $order->items->map(function ($item) {
                         return [
                             'product_name' => $item->product_name,

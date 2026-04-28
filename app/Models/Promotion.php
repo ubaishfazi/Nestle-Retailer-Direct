@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Carbon\Carbon;
 
 class Promotion extends Model
 {
@@ -47,12 +47,12 @@ class Promotion extends Model
      */
     public function isValid(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
         $now = Carbon::now();
-        
+
         if ($now->lt($this->start_date) || $now->gt($this->expiry_date)) {
             return false;
         }
@@ -75,8 +75,8 @@ class Promotion extends Model
         }
 
         $promotionProductIds = $this->products()->pluck('products.id')->toArray();
-        
-        return !empty(array_intersect($productIds, $promotionProductIds));
+
+        return ! empty(array_intersect($productIds, $promotionProductIds));
     }
 
     /**
@@ -84,7 +84,7 @@ class Promotion extends Model
      */
     public function calculateDiscount(float $orderTotal, array $productIds = []): float
     {
-        if (!$this->isValid()) {
+        if (! $this->isValid()) {
             return 0.00;
         }
 
@@ -94,7 +94,7 @@ class Promotion extends Model
         }
 
         // Check if applies to products
-        if (!empty($productIds) && !$this->appliesToProducts($productIds)) {
+        if (! empty($productIds) && ! $this->appliesToProducts($productIds)) {
             return 0.00;
         }
 
@@ -102,7 +102,7 @@ class Promotion extends Model
 
         if ($this->discount_type === 'percentage') {
             $discount = ($orderTotal * $this->discount_value) / 100;
-            
+
             // Apply maximum discount cap if set
             if ($this->maximum_discount_amount !== null && $discount > $this->maximum_discount_amount) {
                 $discount = $this->maximum_discount_amount;
@@ -138,7 +138,7 @@ class Promotion extends Model
     public function scopeValid($query)
     {
         $now = Carbon::now();
-        
+
         return $query->where('is_active', true)
             ->where('start_date', '<=', $now)
             ->where('expiry_date', '>=', $now)

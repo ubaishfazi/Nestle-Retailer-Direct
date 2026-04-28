@@ -9,6 +9,7 @@ import {
     Calendar,
     Percent,
     DollarSign,
+    FileText,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -343,11 +344,28 @@ export default function NestleSystemAnalysis({
                             </div>
                         </div>
 
-                        {/* Row 2 - All Coming Soon */}
+                        {/* Row 2 - Invoices + Coming Soon + Coming Soon */}
                         <div className="grid gap-10 md:grid-cols-3">
-                            <div className="flex h-56 w-72 flex-col items-center justify-center rounded-3xl bg-white/90 p-8 text-center shadow-2xl backdrop-blur-sm border border-white/50 dark:bg-white/10 opacity-50">
-                                <p className="font-medium text-xl text-muted-foreground">Coming Soon</p>
-                            </div>
+                            {/* Invoices Card */}
+                            <Link
+                                href="/invoices"
+                                className="group flex h-56 w-72 flex-col items-center justify-center rounded-3xl bg-white/90 p-8 text-center shadow-2xl backdrop-blur-sm border border-white/50 dark:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] hover:bg-white cursor-pointer"
+                            >
+                                <div className="transform transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-2">
+                                    <FileText className="mb-4 h-14 w-14 text-primary" />
+                                </div>
+                                <p className="font-medium text-xl group-hover:text-primary/80 transition-colors duration-300">Invoices</p>
+                                <div className="mt-4 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                                        View invoices
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </span>
+                                </div>
+                            </Link>
+
+                            {/* Coming Soon Cards */}
                             <div className="flex h-56 w-72 flex-col items-center justify-center rounded-3xl bg-white/90 p-8 text-center shadow-2xl backdrop-blur-sm border border-white/50 dark:bg-white/10 opacity-50">
                                 <p className="font-medium text-xl text-muted-foreground">Coming Soon</p>
                             </div>
