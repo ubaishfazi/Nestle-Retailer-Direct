@@ -1,6 +1,17 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Package, Calendar, User, Mail, AlertCircle, CheckCircle, XCircle, Clock, ImageOff } from 'lucide-react';
+import {
+    ArrowLeft,
+    Package,
+    Calendar,
+    User,
+    Mail,
+    AlertCircle,
+    CheckCircle,
+    XCircle,
+    Clock,
+    ImageOff,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -83,14 +94,18 @@ export default function DistributorComplaintReview({ complaint }: Props) {
 
     const handleApprove = () => {
         setIsSubmitting(true);
-        router.post(`/distributor/complaints/${complaint.id}/approve`, {
-            response: approveResponse,
-        }, {
-            onFinish: () => {
-                setIsSubmitting(false);
-                setShowApproveModal(false);
+        router.post(
+            `/distributor/complaints/${complaint.id}/approve`,
+            {
+                response: approveResponse,
             },
-        });
+            {
+                onFinish: () => {
+                    setIsSubmitting(false);
+                    setShowApproveModal(false);
+                },
+            },
+        );
     };
 
     const handleReject = () => {
@@ -104,103 +119,147 @@ export default function DistributorComplaintReview({ complaint }: Props) {
         }
 
         setIsSubmitting(true);
-        router.post(`/distributor/complaints/${complaint.id}/reject`, {
-            reason: rejectReason,
-        }, {
-            onFinish: () => {
-                setIsSubmitting(false);
-                setShowRejectModal(false);
+        router.post(
+            `/distributor/complaints/${complaint.id}/reject`,
+            {
+                reason: rejectReason,
             },
-        });
+            {
+                onFinish: () => {
+                    setIsSubmitting(false);
+                    setShowRejectModal(false);
+                },
+            },
+        );
     };
 
     const handleMarkPending = () => {
-        if (confirm('Are you sure you want to mark this complaint as pending?')) {
-            router.post(`/distributor/complaints/${complaint.id}/mark-pending`, {
-                onFinish: () => {
-                    toast({
-                        title: 'Success',
-                        description: 'Complaint marked as pending.',
-                    });
+        if (
+            confirm('Are you sure you want to mark this complaint as pending?')
+        ) {
+            router.post(
+                `/distributor/complaints/${complaint.id}/mark-pending`,
+                {
+                    onFinish: () => {
+                        toast({
+                            title: 'Success',
+                            description: 'Complaint marked as pending.',
+                        });
+                    },
                 },
-            });
+            );
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-start justify-center py-4 px-3 md:py-8">
+        <div className="flex min-h-screen items-start justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 px-3 py-4 md:py-8">
             <Head title={`Review Complaint - ${complaint.complaint_id}`} />
 
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-0 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-[#00447C]/5 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 right-1/4 w-64 h-64 md:w-80 md:h-80 bg-blue-400/5 rounded-full blur-3xl"></div>
+            <div className="pointer-events-none fixed inset-0 overflow-hidden">
+                <div className="absolute top-0 left-1/4 h-64 w-64 rounded-full bg-[#00447C]/5 blur-3xl md:h-96 md:w-96"></div>
+                <div className="absolute right-1/4 bottom-0 h-64 w-64 rounded-full bg-blue-400/5 blur-3xl md:h-80 md:w-80"></div>
             </div>
 
-            <div className="relative w-full max-w-4xl mx-auto">
+            <div className="relative mx-auto w-full max-w-4xl">
                 {/* Header */}
-                <header className="relative bg-white/80 backdrop-blur-xl border border-slate-200/50 rounded-t-2xl">
-                    <div className="px-4 md:px-6 py-4">
+                <header className="relative rounded-t-2xl border border-slate-200/50 bg-white/80 backdrop-blur-xl">
+                    <div className="px-4 py-4 md:px-6">
                         <div className="flex items-center justify-between">
-                            <a href="/distributor/complaints" className="flex items-center gap-2 text-slate-600 hover:text-[#00447C] transition-colors">
+                            <a
+                                href="/distributor/complaints"
+                                className="flex items-center gap-2 text-slate-600 transition-colors hover:text-[#00447C]"
+                            >
                                 <ArrowLeft className="h-4 w-4" />
-                                <span className="text-sm font-medium">Back to Complaints</span>
+                                <span className="text-sm font-medium">
+                                    Back to Complaints
+                                </span>
                             </a>
-                            <Badge className={`flex items-center gap-2 px-4 py-2 text-sm ${getStatusBadge(complaint.status)}`}>
-                                {complaint.status === 'pending' && <Clock className="h-4 w-4" />}
-                                {complaint.status === 'approved' && <CheckCircle className="h-4 w-4" />}
-                                {complaint.status === 'rejected' && <XCircle className="h-4 w-4" />}
-                                <span className="capitalize font-semibold">{complaint.status}</span>
+                            <Badge
+                                className={`flex items-center gap-2 px-4 py-2 text-sm ${getStatusBadge(complaint.status)}`}
+                            >
+                                {complaint.status === 'pending' && (
+                                    <Clock className="h-4 w-4" />
+                                )}
+                                {complaint.status === 'approved' && (
+                                    <CheckCircle className="h-4 w-4" />
+                                )}
+                                {complaint.status === 'rejected' && (
+                                    <XCircle className="h-4 w-4" />
+                                )}
+                                <span className="font-semibold capitalize">
+                                    {complaint.status}
+                                </span>
                             </Badge>
                         </div>
                         <div className="mt-3">
-                            <h1 className="text-lg md:text-xl font-bold text-slate-900 tracking-tight">Complaint Review</h1>
-                            <p className="text-xs text-slate-500 font-medium">
-                                Complaint ID: <span className="font-mono font-semibold">{complaint.complaint_id}</span>
+                            <h1 className="text-lg font-bold tracking-tight text-slate-900 md:text-xl">
+                                Complaint Review
+                            </h1>
+                            <p className="text-xs font-medium text-slate-500">
+                                Complaint ID:{' '}
+                                <span className="font-mono font-semibold">
+                                    {complaint.complaint_id}
+                                </span>
                             </p>
                         </div>
                     </div>
                 </header>
 
                 {/* Content */}
-                <div className="bg-white/60 backdrop-blur-sm border border-slate-200/50 rounded-b-2xl p-4 md:p-8 space-y-6">
+                <div className="space-y-6 rounded-b-2xl border border-slate-200/50 bg-white/60 p-4 backdrop-blur-sm md:p-8">
                     {/* Retailer Information */}
-                    <div className="bg-white rounded-xl p-6 border border-slate-200/50">
-                        <h2 className="text-lg font-bold text-slate-900 mb-4">Retailer Information</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-slate-200/50 bg-white p-6">
+                        <h2 className="mb-4 text-lg font-bold text-slate-900">
+                            Retailer Information
+                        </h2>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
                                     <User className="h-5 w-5 text-blue-600" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500">Name</p>
-                                    <p className="font-semibold text-slate-900">{complaint.retailer_name}</p>
+                                    <p className="text-xs text-slate-500">
+                                        Name
+                                    </p>
+                                    <p className="font-semibold text-slate-900">
+                                        {complaint.retailer_name}
+                                    </p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
                                     <Mail className="h-5 w-5 text-blue-600" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500">Email</p>
-                                    <p className="font-semibold text-slate-900">{complaint.retailer_email}</p>
+                                    <p className="text-xs text-slate-500">
+                                        Email
+                                    </p>
+                                    <p className="font-semibold text-slate-900">
+                                        {complaint.retailer_email}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Product Details */}
-                    <div className="bg-white rounded-xl p-6 border border-slate-200/50">
-                        <h2 className="text-lg font-bold text-slate-900 mb-4">Damaged Products ({complaint.items.length})</h2>
+                    <div className="rounded-xl border border-slate-200/50 bg-white p-6">
+                        <h2 className="mb-4 text-lg font-bold text-slate-900">
+                            Damaged Products ({complaint.items.length})
+                        </h2>
                         <div className="space-y-4">
                             {complaint.items.map((item, idx) => (
-                                <div key={item.id} className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                                    <div className="flex flex-col md:flex-row md:items-start gap-4">
-                                        <div className="w-24 h-24 rounded-lg bg-white flex items-center justify-center flex-shrink-0 overflow-hidden border border-slate-200">
+                                <div
+                                    key={item.id}
+                                    className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                                >
+                                    <div className="flex flex-col gap-4 md:flex-row md:items-start">
+                                        <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white">
                                             {item.product_image ? (
                                                 <img
                                                     src={item.product_image}
                                                     alt={item.product_name}
-                                                    className="w-full h-full object-cover"
+                                                    className="h-full w-full object-cover"
                                                 />
                                             ) : (
                                                 <Package className="h-10 w-10 text-slate-400" />
@@ -208,27 +267,40 @@ export default function DistributorComplaintReview({ complaint }: Props) {
                                         </div>
                                         <div className="flex-1">
                                             <div>
-                                                <p className="text-xs text-slate-500">Product Name</p>
-                                                <p className="text-base font-bold text-slate-900">{item.product_name}</p>
+                                                <p className="text-xs text-slate-500">
+                                                    Product Name
+                                                </p>
+                                                <p className="text-base font-bold text-slate-900">
+                                                    {item.product_name}
+                                                </p>
                                             </div>
                                             <div className="mt-2">
-                                                <p className="text-xs text-slate-500">Quantity Affected</p>
-                                                <p className="text-base font-bold text-slate-900">{item.quantity} units</p>
+                                                <p className="text-xs text-slate-500">
+                                                    Quantity Affected
+                                                </p>
+                                                <p className="text-base font-bold text-slate-900">
+                                                    {item.quantity} units
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
                                     {item.proof_image_path ? (
-                                        <div className="mt-3 pt-3 border-t border-slate-200">
-                                            <p className="text-xs font-semibold text-slate-700 mb-2">Proof Image:</p>
-                                            <div className="rounded-lg overflow-hidden bg-white border border-slate-200">
+                                        <div className="mt-3 border-t border-slate-200 pt-3">
+                                            <p className="mb-2 text-xs font-semibold text-slate-700">
+                                                Proof Image:
+                                            </p>
+                                            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
                                                 <img
                                                     src={item.proof_image_path}
                                                     alt={`Proof for ${item.product_name}`}
-                                                    className="w-full h-auto max-h-64 object-contain"
+                                                    className="h-auto max-h-64 w-full object-contain"
                                                     onError={(e) => {
-                                                        const target = e.currentTarget;
-                                                        target.style.display = 'none';
-                                                        const parent = target.parentElement;
+                                                        const target =
+                                                            e.currentTarget;
+                                                        target.style.display =
+                                                            'none';
+                                                        const parent =
+                                                            target.parentElement;
                                                         if (parent) {
                                                             parent.innerHTML = `
                                                                 <div class="flex flex-col items-center justify-center p-8 text-slate-400">
@@ -245,13 +317,28 @@ export default function DistributorComplaintReview({ complaint }: Props) {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="mt-3 pt-3 border-t border-slate-200">
-                                            <p className="text-xs font-semibold text-slate-700 mb-2">Proof Image:</p>
-                                            <div className="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200">
-                                                <svg class="w-10 h-10 text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        <div className="mt-3 border-t border-slate-200 pt-3">
+                                            <p className="mb-2 text-xs font-semibold text-slate-700">
+                                                Proof Image:
+                                            </p>
+                                            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-200 bg-slate-50 p-6">
+                                                <svg
+                                                    class="mb-2 h-10 w-10 text-slate-300"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                    ></path>
                                                 </svg>
-                                                <p className="text-xs text-slate-500">No proof image uploaded for this product</p>
+                                                <p className="text-xs text-slate-500">
+                                                    No proof image uploaded for
+                                                    this product
+                                                </p>
                                             </div>
                                         </div>
                                     )}
@@ -261,39 +348,76 @@ export default function DistributorComplaintReview({ complaint }: Props) {
                     </div>
 
                     {/* Damage Description */}
-                    <div className="bg-white rounded-xl p-6 border border-slate-200/50">
-                        <h2 className="text-lg font-bold text-slate-900 mb-4">Damage Description</h2>
-                        <div className="bg-slate-50 rounded-lg p-4">
-                            <p className="text-sm text-slate-700 whitespace-pre-wrap">{complaint.description}</p>
+                    <div className="rounded-xl border border-slate-200/50 bg-white p-6">
+                        <h2 className="mb-4 text-lg font-bold text-slate-900">
+                            Damage Description
+                        </h2>
+                        <div className="rounded-lg bg-slate-50 p-4">
+                            <p className="text-sm whitespace-pre-wrap text-slate-700">
+                                {complaint.description}
+                            </p>
                         </div>
                     </div>
 
                     {/* Order Details */}
                     {complaint.order && (
-                        <div className="bg-white rounded-xl p-6 border border-slate-200/50">
-                            <h2 className="text-lg font-bold text-slate-900 mb-4">Original Order Details</h2>
-                            <div className="bg-slate-50 rounded-lg p-4 space-y-3">
+                        <div className="rounded-xl border border-slate-200/50 bg-white p-6">
+                            <h2 className="mb-4 text-lg font-bold text-slate-900">
+                                Original Order Details
+                            </h2>
+                            <div className="space-y-3 rounded-lg bg-slate-50 p-4">
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-slate-500">Order #</span>
-                                    <span className="font-semibold text-slate-900">{complaint.order.id}</span>
+                                    <span className="text-slate-500">
+                                        Order #
+                                    </span>
+                                    <span className="font-semibold text-slate-900">
+                                        {complaint.order.id}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-slate-500">Order Date</span>
-                                    <span className="font-semibold text-slate-900">{complaint.order.created_at}</span>
+                                    <span className="text-slate-500">
+                                        Order Date
+                                    </span>
+                                    <span className="font-semibold text-slate-900">
+                                        {complaint.order.created_at}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-slate-500">Total Amount</span>
-                                    <span className="font-semibold text-slate-900">LKR {complaint.order.total_amount.toFixed(2)}</span>
+                                    <span className="text-slate-500">
+                                        Total Amount
+                                    </span>
+                                    <span className="font-semibold text-slate-900">
+                                        LKR{' '}
+                                        {complaint.order.total_amount.toFixed(
+                                            2,
+                                        )}
+                                    </span>
                                 </div>
                                 <div className="border-t border-slate-200 pt-3">
-                                    <p className="text-xs font-semibold text-slate-700 mb-2">Order Items:</p>
+                                    <p className="mb-2 text-xs font-semibold text-slate-700">
+                                        Order Items:
+                                    </p>
                                     <div className="space-y-2">
-                                        {complaint.order.items.map((item, index) => (
-                                            <div key={index} className="flex justify-between text-sm">
-                                                <span className="text-slate-600">{item.product_name} x{item.quantity}</span>
-                                                <span className="font-semibold text-slate-900">LKR {(item.price * item.quantity).toFixed(2)}</span>
-                                            </div>
-                                        ))}
+                                        {complaint.order.items.map(
+                                            (item, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex justify-between text-sm"
+                                                >
+                                                    <span className="text-slate-600">
+                                                        {item.product_name} x
+                                                        {item.quantity}
+                                                    </span>
+                                                    <span className="font-semibold text-slate-900">
+                                                        LKR{' '}
+                                                        {(
+                                                            item.price *
+                                                            item.quantity
+                                                        ).toFixed(2)}
+                                                    </span>
+                                                </div>
+                                            ),
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -302,32 +426,52 @@ export default function DistributorComplaintReview({ complaint }: Props) {
 
                     {/* Distributor Response (if already resolved) */}
                     {complaint.distributor_response && (
-                        <div className={`rounded-xl p-6 border-2 ${
-                            complaint.status === 'approved' 
-                                ? 'bg-emerald-50 border-emerald-200' 
-                                : 'bg-red-50 border-red-200'
-                        }`}>
-                            <h2 className={`text-lg font-bold mb-4 ${
-                                complaint.status === 'approved' ? 'text-emerald-900' : 'text-red-900'
-                            }`}>
-                                {complaint.status === 'approved' ? '✓ Approved' : '✗ Rejected'}
+                        <div
+                            className={`rounded-xl border-2 p-6 ${
+                                complaint.status === 'approved'
+                                    ? 'border-emerald-200 bg-emerald-50'
+                                    : 'border-red-200 bg-red-50'
+                            }`}
+                        >
+                            <h2
+                                className={`mb-4 text-lg font-bold ${
+                                    complaint.status === 'approved'
+                                        ? 'text-emerald-900'
+                                        : 'text-red-900'
+                                }`}
+                            >
+                                {complaint.status === 'approved'
+                                    ? '✓ Approved'
+                                    : '✗ Rejected'}
                             </h2>
-                            <div className={`rounded-lg p-4 ${
-                                complaint.status === 'approved' ? 'bg-emerald-100' : 'bg-red-100'
-                            }`}>
-                                <p className={`text-sm font-medium mb-2 ${
-                                    complaint.status === 'approved' ? 'text-emerald-700' : 'text-red-700'
-                                }`}>
+                            <div
+                                className={`rounded-lg p-4 ${
+                                    complaint.status === 'approved'
+                                        ? 'bg-emerald-100'
+                                        : 'bg-red-100'
+                                }`}
+                            >
+                                <p
+                                    className={`mb-2 text-sm font-medium ${
+                                        complaint.status === 'approved'
+                                            ? 'text-emerald-700'
+                                            : 'text-red-700'
+                                    }`}
+                                >
                                     Response:
                                 </p>
-                                <p className={`text-sm ${
-                                    complaint.status === 'approved' ? 'text-emerald-600' : 'text-red-600'
-                                }`}>
+                                <p
+                                    className={`text-sm ${
+                                        complaint.status === 'approved'
+                                            ? 'text-emerald-600'
+                                            : 'text-red-600'
+                                    }`}
+                                >
                                     {complaint.distributor_response}
                                 </p>
                             </div>
                             {complaint.resolved_at && (
-                                <p className="text-xs text-slate-500 mt-4">
+                                <p className="mt-4 text-xs text-slate-500">
                                     Resolved on: {complaint.resolved_at}
                                 </p>
                             )}
@@ -336,35 +480,38 @@ export default function DistributorComplaintReview({ complaint }: Props) {
 
                     {/* Action Buttons */}
                     {complaint.status === 'pending' && (
-                        <div className="bg-white rounded-xl p-6 border border-slate-200/50">
-                            <h2 className="text-lg font-bold text-slate-900 mb-4">Take Action</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="rounded-xl border border-slate-200/50 bg-white p-6">
+                            <h2 className="mb-4 text-lg font-bold text-slate-900">
+                                Take Action
+                            </h2>
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                 <Button
                                     onClick={() => setShowApproveModal(true)}
-                                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-6"
+                                    className="bg-emerald-600 py-6 font-semibold text-white hover:bg-emerald-700"
                                 >
-                                    <CheckCircle className="h-5 w-5 mr-2" />
+                                    <CheckCircle className="mr-2 h-5 w-5" />
                                     Approve Complaint
                                 </Button>
                                 <Button
                                     onClick={() => setShowRejectModal(true)}
-                                    className="bg-red-600 hover:bg-red-700 text-white font-semibold py-6"
+                                    className="bg-red-600 py-6 font-semibold text-white hover:bg-red-700"
                                 >
-                                    <XCircle className="h-5 w-5 mr-2" />
+                                    <XCircle className="mr-2 h-5 w-5" />
                                     Reject Complaint
                                 </Button>
                                 <Button
                                     onClick={handleMarkPending}
                                     variant="outline"
-                                    className="font-semibold py-6"
+                                    className="py-6 font-semibold"
                                 >
-                                    <Clock className="h-5 w-5 mr-2" />
+                                    <Clock className="mr-2 h-5 w-5" />
                                     Keep Pending
                                 </Button>
                             </div>
-                            <p className="text-xs text-slate-500 mt-4">
-                                <AlertCircle className="h-4 w-4 inline mr-1" />
-                                Approving will initiate replacement process. Requiring requires a reason.
+                            <p className="mt-4 text-xs text-slate-500">
+                                <AlertCircle className="mr-1 inline h-4 w-4" />
+                                Approving will initiate replacement process.
+                                Requiring requires a reason.
                             </p>
                         </div>
                     )}
@@ -373,21 +520,27 @@ export default function DistributorComplaintReview({ complaint }: Props) {
 
             {/* Approve Modal */}
             {showApproveModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl p-6 max-w-md w-full">
-                        <h3 className="text-lg font-bold text-slate-900 mb-4">Approve Complaint</h3>
-                        <p className="text-sm text-slate-600 mb-4">
-                            This will initiate the replacement process for {complaint.quantity} units of {complaint.product_name}.
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-md rounded-xl bg-white p-6">
+                        <h3 className="mb-4 text-lg font-bold text-slate-900">
+                            Approve Complaint
+                        </h3>
+                        <p className="mb-4 text-sm text-slate-600">
+                            This will initiate the replacement process for{' '}
+                            {complaint.quantity} units of{' '}
+                            {complaint.product_name}.
                         </p>
                         <div className="mb-4">
-                            <label className="text-sm font-medium text-slate-700 mb-2 block">
+                            <label className="mb-2 block text-sm font-medium text-slate-700">
                                 Response (optional)
                             </label>
                             <textarea
-                                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                                 placeholder="Add any notes about the replacement..."
                                 value={approveResponse}
-                                onChange={(e) => setApproveResponse(e.target.value)}
+                                onChange={(e) =>
+                                    setApproveResponse(e.target.value)
+                                }
                                 maxLength={1000}
                             />
                         </div>
@@ -397,7 +550,9 @@ export default function DistributorComplaintReview({ complaint }: Props) {
                                 disabled={isSubmitting}
                                 className="flex-1 bg-emerald-600 hover:bg-emerald-700"
                             >
-                                {isSubmitting ? 'Processing...' : 'Confirm Approval'}
+                                {isSubmitting
+                                    ? 'Processing...'
+                                    : 'Confirm Approval'}
                             </Button>
                             <Button
                                 onClick={() => setShowApproveModal(false)}
@@ -413,21 +568,26 @@ export default function DistributorComplaintReview({ complaint }: Props) {
 
             {/* Reject Modal */}
             {showRejectModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl p-6 max-w-md w-full">
-                        <h3 className="text-lg font-bold text-slate-900 mb-4">Reject Complaint</h3>
-                        <p className="text-sm text-slate-600 mb-4">
-                            Please provide a reason for rejecting this complaint.
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-md rounded-xl bg-white p-6">
+                        <h3 className="mb-4 text-lg font-bold text-slate-900">
+                            Reject Complaint
+                        </h3>
+                        <p className="mb-4 text-sm text-slate-600">
+                            Please provide a reason for rejecting this
+                            complaint.
                         </p>
                         <div className="mb-4">
-                            <label className="text-sm font-medium text-slate-700 mb-2 block">
+                            <label className="mb-2 block text-sm font-medium text-slate-700">
                                 Rejection Reason *
                             </label>
                             <textarea
-                                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                                 placeholder="Explain why this complaint is being rejected..."
                                 value={rejectReason}
-                                onChange={(e) => setRejectReason(e.target.value)}
+                                onChange={(e) =>
+                                    setRejectReason(e.target.value)
+                                }
                                 maxLength={1000}
                                 required
                             />
@@ -438,7 +598,9 @@ export default function DistributorComplaintReview({ complaint }: Props) {
                                 disabled={isSubmitting}
                                 className="flex-1 bg-red-600 hover:bg-red-700"
                             >
-                                {isSubmitting ? 'Processing...' : 'Confirm Rejection'}
+                                {isSubmitting
+                                    ? 'Processing...'
+                                    : 'Confirm Rejection'}
                             </Button>
                             <Button
                                 onClick={() => setShowRejectModal(false)}

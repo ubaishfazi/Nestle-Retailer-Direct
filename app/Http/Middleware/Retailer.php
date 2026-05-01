@@ -17,6 +17,11 @@ class Retailer
     public function handle(Request $request, Closure $next): Response
     {
         if (! Auth::check() || ! Auth::user()->isRetailer()) {
+            // For AJAX/API requests, return JSON response instead of redirect
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthorized.'], 401);
+            }
+
             // Redirect users to their appropriate dashboard based on role
             if (Auth::check()) {
                 $user = Auth::user();

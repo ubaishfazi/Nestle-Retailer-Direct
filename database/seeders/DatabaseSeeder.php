@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminUserSeeder::class,
             ProductSeeder::class,
+            // Remove legacy/unwanted products if present
+            RemoveOldProductsSeeder::class,
             PromotionSeeder::class,
         ]);
     }

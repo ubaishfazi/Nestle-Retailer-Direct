@@ -13,6 +13,7 @@ use App\Http\Controllers\RetailerInventoryController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\UserApprovalsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -72,18 +73,26 @@ Route::middleware(['auth', 'verified', 'distributor'])->group(function () {
     Route::get('/distributor/warehouse-inventory', [DistributorController::class, 'warehouseInventory'])->name('distributor.warehouse-inventory');
     Route::post('/distributor/warehouse-inventory/{product}/restock', [DistributorController::class, 'restock'])->name('distributor.warehouse-inventory.restock');
 
-    // Distributor complaint routes
+    // Distributor complaints routes
     Route::get('/distributor/complaints', [ComplaintController::class, 'distributorIndex'])->name('distributor.complaints.index');
     Route::get('/distributor/complaints/{complaint}', [ComplaintController::class, 'distributorShow'])->name('distributor.complaints.show');
-    Route::post('/distributor/complaints/{complaint}/approve', [ComplaintController::class, 'distributorApprove'])->name('distributor.complaints.approve');
-    Route::post('/distributor/complaints/{complaint}/reject', [ComplaintController::class, 'distributorReject'])->name('distributor.complaints.reject');
-    Route::post('/distributor/complaints/{complaint}/mark-pending', [ComplaintController::class, 'distributorMarkPending'])->name('distributor.complaints.mark-pending');
+
+// Distributor survey routes (read-only)
+Route::middleware(['auth', 'verified', 'distributor'])->group(function () {
+    Route::get('/distributor/surveys', [SurveyController::class, 'index'])->name('distributor.surveys.index');
+    Route::get('/distributor/surveys/{survey}', [SurveyController::class, 'show'])->name('distributor.surveys.show');
+    Route::get('/api/distributor/surveys/stats', [SurveyController::class, 'stats'])->name('api.distributor.surveys.stats');
+});
 });
 
 // Retailer inventory routes
 Route::middleware(['auth', 'verified', 'retailer'])->group(function () {
     Route::get('/retailer/inventory', [RetailerInventoryController::class, 'index'])->name('retailer.inventory');
     Route::get('/retailer/promotions', [PromotionController::class, 'retailerPromotions'])->name('retailer.promotions.index');
+
+    // Retailer survey routes
+    Route::get('/survey/{survey}', [SurveyController::class, 'showSurvey'])->name('retailer.survey.show');
+    Route::post('/survey/{survey}/submit', [SurveyController::class, 'submitResponse'])->name('retailer.survey.submit');
 
     // Retailer complaint routes
     Route::get('/complaints/create', [ComplaintController::class, 'create'])->name('complaints.create');
@@ -150,11 +159,26 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::put('promotions/{promotion}', [PromotionController::class, 'update'])->name('admin.promotions.update');
     Route::delete('promotions/{promotion}', [PromotionController::class, 'destroy'])->name('admin.promotions.destroy');
     Route::get('promotions/generate-code', [PromotionController::class, 'generatePromoCode'])->name('admin.promotions.generate-code');
+
+    // Survey Management routes (admin only - full CRUD)
+    Route::get('surveys', [SurveyController::class, 'adminIndex'])->name('admin.surveys.index');
+    Route::get('surveys/create', [SurveyController::class, 'create'])->name('admin.surveys.create');
+    Route::post('surveys', [SurveyController::class, 'store'])->name('admin.surveys.store');
+    Route::get('surveys/{survey}', [SurveyController::class, 'adminShow'])->name('admin.surveys.show');
+    Route::get('surveys/{survey}/edit', [SurveyController::class, 'adminEdit'])->name('admin.surveys.edit');
+    Route::put('surveys/{survey}', [SurveyController::class, 'adminUpdate'])->name('admin.surveys.update');
+    Route::delete('surveys/{survey}', [SurveyController::class, 'adminDestroy'])->name('admin.surveys.destroy');
 });
 
 // Promo code validation routes (authenticated users)
 Route::middleware(['auth'])->post('/api/promo-code/validate', [PromotionController::class, 'validatePromoCode'])->name('api.promo-code.validate');
 Route::middleware(['auth'])->get('/api/promotions/active', [PromotionController::class, 'activePromotions'])->name('api.promotions.active');
+
+// Survey API routes
+Route::middleware(['auth'])->get('/api/surveys/active', [SurveyController::class, 'active'])->name('api.surveys.active');
+
+// Distributor inventory for admin product selection (used in survey create/edit)
+Route::middleware(['auth'])->get('/api/distributor/inventory', [ProductController::class, 'distributorInventory'])->name('api.distributor.inventory');
 
 Route::middleware(['auth'])->post('/orders', [OrderController::class, 'store'])->name('orders.store');
 Route::middleware(['auth'])->get('/my-orders', [OrderController::class, 'myOrders'])->name('my-orders');

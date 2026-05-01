@@ -16,10 +16,7 @@ type Props = {
     canRegister: boolean;
 };
 
-export default function Login({
-    status,
-    canRegister,
-}: Props) {
+export default function Login({ status, canRegister }: Props) {
     const { errors, flash } = usePage().props;
     const displayStatus = status || flash?.status;
     const isPendingApproval = displayStatus?.includes('pending admin approval');
@@ -47,16 +44,26 @@ export default function Login({
                 <Head title="Account Approved" />
                 <div className="flex flex-col items-center justify-center gap-6 py-8">
                     <div className="rounded-full bg-green-100 p-4 dark:bg-green-900">
-                        <svg className="h-12 w-12 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg
+                            className="h-12 w-12 text-green-600 dark:text-green-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
                         </svg>
                     </div>
 
-                    <div className="text-center space-y-2">
+                    <div className="space-y-2 text-center">
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                             Account Approved Successfully!
                         </h2>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md">
+                        <p className="max-w-md text-sm text-gray-600 dark:text-gray-400">
                             {displayStatus}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-500">
@@ -64,10 +71,7 @@ export default function Login({
                         </p>
                     </div>
 
-                    <Button
-                        onClick={handleProceedToLogin}
-                        className="gap-2"
-                    >
+                    <Button onClick={handleProceedToLogin} className="gap-2">
                         Proceed to Login
                     </Button>
                 </div>
@@ -85,20 +89,31 @@ export default function Login({
                 <Head title="Pending Approval" />
                 <div className="flex flex-col items-center justify-center gap-6 py-8">
                     <div className="rounded-full bg-yellow-100 p-4 dark:bg-yellow-900">
-                        <svg className="h-12 w-12 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg
+                            className="h-12 w-12 text-yellow-600 dark:text-yellow-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
                         </svg>
                     </div>
 
-                    <div className="text-center space-y-2">
+                    <div className="space-y-2 text-center">
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                             Account Pending Approval
                         </h2>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md">
+                        <p className="max-w-md text-sm text-gray-600 dark:text-gray-400">
                             {displayStatus || loginError}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-500">
-                            Please wait for an administrator to approve your account before logging in.
+                            Please wait for an administrator to approve your
+                            account before logging in.
                         </p>
                     </div>
 

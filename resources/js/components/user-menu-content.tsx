@@ -33,12 +33,15 @@ export function UserMenuContent({ user }: Props) {
                 </div>
                 {user.role && (
                     <div className="px-1 py-1 text-left">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                            user.role === 'admin' 
-                                ? 'bg-[#00447C] text-white' 
-                                : 'bg-gray-200 text-gray-700'
-                        }`}>
-                            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                        <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                                user.role === 'admin'
+                                    ? 'bg-[#00447C] text-white'
+                                    : 'bg-gray-200 text-gray-700'
+                            }`}
+                        >
+                            {user.role.charAt(0).toUpperCase() +
+                                user.role.slice(1)}
                         </span>
                     </div>
                 )}

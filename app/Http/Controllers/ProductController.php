@@ -29,4 +29,21 @@ class ProductController extends Controller
             'categories' => $categories,
         ]);
     }
+
+    /**
+     * Return distributor inventory (used by admin survey product selection UI)
+     */
+    public function distributorInventory()
+    {
+        $products = Product::all()->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => (float) $product->price,
+                'image_url' => $product->image_url ?? '/images/placeholder-product.png',
+            ];
+        });
+
+        return response()->json(['products' => $products]);
+    }
 }

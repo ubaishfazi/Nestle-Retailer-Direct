@@ -15,9 +15,12 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
     return (
         <SidebarGroup className="px-2 py-0">
             <SidebarMenu>
-                {items.map((item) => (
+                {items.map((item) =>
                     item.isGroup ? (
-                        <SidebarGroupLabel key={item.title} className="mt-2 text-xs font-semibold uppercase tracking-wider">
+                        <SidebarGroupLabel
+                            key={item.title}
+                            className="mt-2 text-xs font-semibold tracking-wider uppercase"
+                        >
                             {item.title}
                         </SidebarGroupLabel>
                     ) : (
@@ -33,8 +36,8 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
-                    )
-                ))}
+                    ),
+                )}
             </SidebarMenu>
         </SidebarGroup>
     );

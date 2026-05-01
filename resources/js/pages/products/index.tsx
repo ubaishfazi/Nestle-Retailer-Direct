@@ -1,6 +1,14 @@
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
-import { Search, Filter, ShoppingCart, ChevronDown, Plus, Minus, Check } from 'lucide-react';
+import {
+    Search,
+    Filter,
+    ShoppingCart,
+    ChevronDown,
+    Plus,
+    Minus,
+    Check,
+} from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -77,9 +85,16 @@ export default function Products() {
 
     const filteredProducts = products
         .filter((product) => {
-            const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                product.description.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
+            const matchesSearch =
+                product.name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                product.description
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase());
+            const matchesCategory =
+                selectedCategory === 'all' ||
+                product.category === selectedCategory;
             return matchesSearch && matchesCategory;
         })
         .sort((a, b) => {
@@ -149,8 +164,12 @@ export default function Products() {
                 {/* Page Header */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Products</h1>
-                        <p className="text-muted-foreground mt-1">Browse and order from our product catalog</p>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            Products
+                        </h1>
+                        <p className="mt-1 text-muted-foreground">
+                            Browse and order from our product catalog
+                        </p>
                     </div>
 
                     {/* Cart Summary */}
@@ -161,15 +180,27 @@ export default function Products() {
                                     <div className="flex items-center gap-2">
                                         <ShoppingCart className="h-5 w-5 text-[#00447C]" />
                                         <div>
-                                            <div className="text-sm font-semibold">{totalItems} items</div>
-                                            <div className="text-xs text-muted-foreground">LKR {totalAmount.toFixed(2)}</div>
+                                            <div className="text-sm font-semibold">
+                                                {totalItems} items
+                                            </div>
+                                            <div className="text-xs text-muted-foreground">
+                                                LKR {totalAmount.toFixed(2)}
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        <Button variant="outline" size="sm" onClick={handleClearCart}>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleClearCart}
+                                        >
                                             Clear
                                         </Button>
-                                        <Button size="sm" onClick={handleCheckout} className="bg-[#00447C] hover:bg-[#003d6f]">
+                                        <Button
+                                            size="sm"
+                                            onClick={handleCheckout}
+                                            className="bg-[#00447C] hover:bg-[#003d6f]"
+                                        >
                                             Checkout
                                         </Button>
                                     </div>
@@ -185,11 +216,13 @@ export default function Products() {
                         <div className="flex flex-col gap-4 md:flex-row md:items-center">
                             {/* Search */}
                             <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     placeholder="Search products..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={(e) =>
+                                        setSearchQuery(e.target.value)
+                                    }
                                     className="pl-9"
                                 />
                             </div>
@@ -197,19 +230,33 @@ export default function Products() {
                             {/* Category Filter */}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className="w-full md:w-auto justify-between">
-                                        {selectedCategory === 'all' ? 'All Categories' : selectedCategory}
+                                    <Button
+                                        variant="outline"
+                                        className="w-full justify-between md:w-auto"
+                                    >
+                                        {selectedCategory === 'all'
+                                            ? 'All Categories'
+                                            : selectedCategory}
                                         <ChevronDown className="h-4 w-4" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-[200px]">
-                                    <DropdownMenuItem onClick={() => setSelectedCategory('all')}>
+                                <DropdownMenuContent
+                                    align="end"
+                                    className="w-[200px]"
+                                >
+                                    <DropdownMenuItem
+                                        onClick={() =>
+                                            setSelectedCategory('all')
+                                        }
+                                    >
                                         All Categories
                                     </DropdownMenuItem>
                                     {categories.map((category) => (
                                         <DropdownMenuItem
                                             key={category}
-                                            onClick={() => setSelectedCategory(category)}
+                                            onClick={() =>
+                                                setSelectedCategory(category)
+                                            }
                                         >
                                             {category}
                                         </DropdownMenuItem>
@@ -220,23 +267,34 @@ export default function Products() {
                             {/* Sort */}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className="w-full md:w-auto justify-between">
-                                        <Filter className="h-4 w-4 mr-2" />
+                                    <Button
+                                        variant="outline"
+                                        className="w-full justify-between md:w-auto"
+                                    >
+                                        <Filter className="mr-2 h-4 w-4" />
                                         Sort
                                         <ChevronDown className="h-4 w-4" />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => setSortBy('name')}>
+                                    <DropdownMenuItem
+                                        onClick={() => setSortBy('name')}
+                                    >
                                         Name (A-Z)
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => setSortBy('price_low')}>
+                                    <DropdownMenuItem
+                                        onClick={() => setSortBy('price_low')}
+                                    >
                                         Price (Low to High)
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => setSortBy('price_high')}>
+                                    <DropdownMenuItem
+                                        onClick={() => setSortBy('price_high')}
+                                    >
                                         Price (High to Low)
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => setSortBy('stock')}>
+                                    <DropdownMenuItem
+                                        onClick={() => setSortBy('stock')}
+                                    >
                                         Stock Level
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -248,7 +306,8 @@ export default function Products() {
                 {/* Results Count */}
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                        Showing {filteredProducts.length} of {products.length} products
+                        Showing {filteredProducts.length} of {products.length}{' '}
+                        products
                     </p>
                 </div>
 
@@ -256,19 +315,27 @@ export default function Products() {
                 {filteredProducts.length === 0 ? (
                     <Card>
                         <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                            <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
-                            <h3 className="text-lg font-semibold">No products found</h3>
-                            <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
+                            <ShoppingCart className="mb-4 h-12 w-12 text-muted-foreground" />
+                            <h3 className="text-lg font-semibold">
+                                No products found
+                            </h3>
+                            <p className="text-muted-foreground">
+                                Try adjusting your search or filter criteria
+                            </p>
                         </CardContent>
                     </Card>
                 ) : (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {filteredProducts.map((product) => {
                             const quantityInCart = cart[product.id] || 0;
-                            const isOutOfStock = product.stock_status === 'out_of_stock';
+                            const isOutOfStock =
+                                product.stock_status === 'out_of_stock';
 
                             return (
-                                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                                <Card
+                                    key={product.id}
+                                    className="overflow-hidden transition-shadow duration-300 hover:shadow-lg"
+                                >
                                     <CardHeader className="p-0">
                                         {/* Product Image */}
                                         <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
@@ -279,37 +346,45 @@ export default function Products() {
                                             />
                                             {/* Stock Status Badge */}
                                             <div className="absolute top-2 right-2">
-                                                <Badge className={getStockStatusBadge(product.stock_status)}>
-                                                    {getStockStatusLabel(product.stock_status)}
+                                                <Badge
+                                                    className={getStockStatusBadge(
+                                                        product.stock_status,
+                                                    )}
+                                                >
+                                                    {getStockStatusLabel(
+                                                        product.stock_status,
+                                                    )}
                                                 </Badge>
                                             </div>
                                         </div>
                                     </CardHeader>
-                                    <CardContent className="p-4 space-y-3">
+                                    <CardContent className="space-y-3 p-4">
                                         {/* Category */}
-                                        <div className="text-xs text-muted-foreground uppercase tracking-wide">
+                                        <div className="text-xs tracking-wide text-muted-foreground uppercase">
                                             {product.category}
                                         </div>
 
                                         {/* Product Name */}
-                                        <h3 className="font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
+                                        <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold">
                                             {product.name}
                                         </h3>
 
                                         {/* Description */}
-                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                        <p className="line-clamp-2 text-xs text-muted-foreground">
                                             {product.description}
                                         </p>
 
                                         {/* Stock Info */}
-                                        {product.stock_status !== 'out_of_stock' && (
+                                        {product.stock_status !==
+                                            'out_of_stock' && (
                                             <p className="text-xs text-muted-foreground">
-                                                {product.stock_quantity} available
+                                                {product.stock_quantity}{' '}
+                                                available
                                             </p>
                                         )}
 
                                         {/* Price and Cart Actions */}
-                                        <div className="flex items-center justify-between pt-2 border-t">
+                                        <div className="flex items-center justify-between border-t pt-2">
                                             <div className="text-lg font-bold text-[#00447C]">
                                                 LKR {product.price.toFixed(2)}
                                             </div>
@@ -320,7 +395,11 @@ export default function Products() {
                                                         size="icon"
                                                         variant="outline"
                                                         className="h-8 w-8"
-                                                        onClick={() => handleRemoveFromCart(product.id)}
+                                                        onClick={() =>
+                                                            handleRemoveFromCart(
+                                                                product.id,
+                                                            )
+                                                        }
                                                     >
                                                         <Minus className="h-3 w-3" />
                                                     </Button>
@@ -330,7 +409,11 @@ export default function Products() {
                                                     <Button
                                                         size="icon"
                                                         className="h-8 w-8 bg-[#00447C] hover:bg-[#003d6f]"
-                                                        onClick={() => handleAddToCart(product.id)}
+                                                        onClick={() =>
+                                                            handleAddToCart(
+                                                                product.id,
+                                                            )
+                                                        }
                                                         disabled={isOutOfStock}
                                                     >
                                                         <Plus className="h-3 w-3" />
@@ -339,11 +422,15 @@ export default function Products() {
                                             ) : (
                                                 <Button
                                                     size="sm"
-                                                    onClick={() => handleAddToCart(product.id)}
+                                                    onClick={() =>
+                                                        handleAddToCart(
+                                                            product.id,
+                                                        )
+                                                    }
                                                     disabled={isOutOfStock}
                                                     className="bg-[#00447C] hover:bg-[#003d6f]"
                                                 >
-                                                    <ShoppingCart className="h-4 w-4 mr-1" />
+                                                    <ShoppingCart className="mr-1 h-4 w-4" />
                                                     Add
                                                 </Button>
                                             )}
@@ -353,7 +440,9 @@ export default function Products() {
                                         {quantityInCart > 0 && (
                                             <div className="flex items-center gap-1 text-xs text-emerald-600">
                                                 <Check className="h-3 w-3" />
-                                                <span>{quantityInCart} in cart</span>
+                                                <span>
+                                                    {quantityInCart} in cart
+                                                </span>
                                             </div>
                                         )}
                                     </CardContent>

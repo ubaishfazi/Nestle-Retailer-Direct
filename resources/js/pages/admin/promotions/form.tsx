@@ -1,19 +1,38 @@
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { ArrowLeft, Save, Tag, Calendar, Percent, DollarSign, QrCode } from 'lucide-react';
+import {
+    ArrowLeft,
+    Save,
+    Tag,
+    Calendar,
+    Percent,
+    DollarSign,
+    QrCode,
+} from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem, Promotion, Product } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-
 
 interface ProductOption {
     id: number;
@@ -43,36 +62,46 @@ export default function PromotionForm({ promotion, products }: Props) {
 
     // Form state
     const [title, setTitle] = useState(promotion?.title || '');
-    const [description, setDescription] = useState(promotion?.description || '');
+    const [description, setDescription] = useState(
+        promotion?.description || '',
+    );
     const [promoCode, setPromoCode] = useState(promotion?.promo_code || '');
     const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>(
-        promotion?.discount_type || 'percentage'
+        promotion?.discount_type || 'percentage',
     );
     const [discountValue, setDiscountValue] = useState(
-        promotion?.discount_value?.toString() || ''
+        promotion?.discount_value?.toString() || '',
     );
     const [minimumOrderAmount, setMinimumOrderAmount] = useState(
-        promotion?.minimum_order_amount?.toString() || ''
+        promotion?.minimum_order_amount?.toString() || '',
     );
     const [maximumDiscountAmount, setMaximumDiscountAmount] = useState(
-        promotion?.maximum_discount_amount?.toString() || ''
+        promotion?.maximum_discount_amount?.toString() || '',
     );
     const [startDate, setStartDate] = useState(
-        promotion?.start_date ? promotion.start_date.split(' ')[0] : new Date().toISOString().split('T')[0]
+        promotion?.start_date
+            ? promotion.start_date.split(' ')[0]
+            : new Date().toISOString().split('T')[0],
     );
     const [startTime, setStartTime] = useState(
-        promotion?.start_date ? promotion.start_date.split(' ')[1] || '00:00' : '00:00'
+        promotion?.start_date
+            ? promotion.start_date.split(' ')[1] || '00:00'
+            : '00:00',
     );
     const [expiryDate, setExpiryDate] = useState(
-        promotion?.expiry_date ? promotion.expiry_date.split(' ')[0] : ''
+        promotion?.expiry_date ? promotion.expiry_date.split(' ')[0] : '',
     );
     const [expiryTime, setExpiryTime] = useState(
-        promotion?.expiry_date ? promotion.expiry_date.split(' ')[1] || '23:59' : '23:59'
+        promotion?.expiry_date
+            ? promotion.expiry_date.split(' ')[1] || '23:59'
+            : '23:59',
     );
     const [isActive, setIsActive] = useState(promotion?.is_active ?? true);
-    const [usageLimit, setUsageLimit] = useState(promotion?.usage_limit?.toString() || '');
+    const [usageLimit, setUsageLimit] = useState(
+        promotion?.usage_limit?.toString() || '',
+    );
     const [selectedProductIds, setSelectedProductIds] = useState<number[]>(
-        promotion?.selected_product_ids || []
+        promotion?.selected_product_ids || [],
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [showQR, setShowQR] = useState(false);
@@ -102,8 +131,12 @@ export default function PromotionForm({ promotion, products }: Props) {
             promo_code: promoCode,
             discount_type: discountType,
             discount_value: parseFloat(discountValue),
-            minimum_order_amount: minimumOrderAmount ? parseFloat(minimumOrderAmount) : null,
-            maximum_discount_amount: maximumDiscountAmount ? parseFloat(maximumDiscountAmount) : null,
+            minimum_order_amount: minimumOrderAmount
+                ? parseFloat(minimumOrderAmount)
+                : null,
+            maximum_discount_amount: maximumDiscountAmount
+                ? parseFloat(maximumDiscountAmount)
+                : null,
             start_date: `${startDate} ${startTime}`,
             expiry_date: `${expiryDate} ${expiryTime}`,
             is_active: isActive,
@@ -126,7 +159,9 @@ export default function PromotionForm({ promotion, products }: Props) {
             },
             onSuccess: () => {
                 toast({
-                    title: isEditing ? 'Promotion updated' : 'Promotion created',
+                    title: isEditing
+                        ? 'Promotion updated'
+                        : 'Promotion created',
                     description: isEditing
                         ? 'The promotion has been successfully updated.'
                         : 'The promotion has been successfully created.',
@@ -139,7 +174,7 @@ export default function PromotionForm({ promotion, products }: Props) {
         setSelectedProductIds((prev) =>
             prev.includes(productId)
                 ? prev.filter((id) => id !== productId)
-                : [...prev, productId]
+                : [...prev, productId],
         );
     };
 
@@ -156,7 +191,9 @@ export default function PromotionForm({ promotion, products }: Props) {
                     </Button>
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">
-                            {isEditing ? 'Edit Promotion' : 'Create New Promotion'}
+                            {isEditing
+                                ? 'Edit Promotion'
+                                : 'Create New Promotion'}
                         </h1>
                         <p className="text-muted-foreground">
                             {isEditing
@@ -182,20 +219,28 @@ export default function PromotionForm({ promotion, products }: Props) {
                                     <Input
                                         id="title"
                                         value={title}
-                                        onChange={(e) => setTitle(e.target.value)}
+                                        onChange={(e) =>
+                                            setTitle(e.target.value)
+                                        }
                                         placeholder="e.g., Summer Sale 2026"
                                         required
                                     />
                                     {errors.title && (
-                                        <p className="text-sm text-red-500">{errors.title}</p>
+                                        <p className="text-sm text-red-500">
+                                            {errors.title}
+                                        </p>
                                     )}
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="description">Description</Label>
+                                    <Label htmlFor="description">
+                                        Description
+                                    </Label>
                                     <Textarea
                                         id="description"
                                         value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
+                                        onChange={(e) =>
+                                            setDescription(e.target.value)
+                                        }
                                         placeholder="Describe the promotion details..."
                                         rows={3}
                                     />
@@ -211,17 +256,24 @@ export default function PromotionForm({ promotion, products }: Props) {
                                     Promo Code
                                 </CardTitle>
                                 <CardDescription>
-                                    Unique code that retailers will use to apply this promotion
+                                    Unique code that retailers will use to apply
+                                    this promotion
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid gap-4">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="promo_code">Promo Code *</Label>
+                                    <Label htmlFor="promo_code">
+                                        Promo Code *
+                                    </Label>
                                     <div className="flex gap-2">
                                         <Input
                                             id="promo_code"
                                             value={promoCode}
-                                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                            onChange={(e) =>
+                                                setPromoCode(
+                                                    e.target.value.toUpperCase(),
+                                                )
+                                            }
                                             placeholder="e.g., SUMMER2026"
                                             className="uppercase"
                                             required
@@ -235,7 +287,9 @@ export default function PromotionForm({ promotion, products }: Props) {
                                         </Button>
                                     </div>
                                     {errors.promo_code && (
-                                        <p className="text-sm text-red-500">{errors.promo_code}</p>
+                                        <p className="text-sm text-red-500">
+                                            {errors.promo_code}
+                                        </p>
                                     )}
                                 </div>
 
@@ -252,8 +306,7 @@ export default function PromotionForm({ promotion, products }: Props) {
                                         </Button>
                                         {showQR && (
                                             <div className="mt-4 flex flex-col items-center gap-3 rounded-lg border p-6">
-
-                                                <code className="rounded bg-muted px-3 py-2 text-lg font-mono">
+                                                <code className="rounded bg-muted px-3 py-2 font-mono text-lg">
                                                     {promoCode}
                                                 </code>
                                             </div>
@@ -276,12 +329,14 @@ export default function PromotionForm({ promotion, products }: Props) {
                             </CardHeader>
                             <CardContent className="grid gap-4">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="discount_type">Discount Type *</Label>
+                                    <Label htmlFor="discount_type">
+                                        Discount Type *
+                                    </Label>
                                     <Select
                                         value={discountType}
-                                        onValueChange={(value: 'percentage' | 'fixed') =>
-                                            setDiscountType(value)
-                                        }
+                                        onValueChange={(
+                                            value: 'percentage' | 'fixed',
+                                        ) => setDiscountType(value)}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select discount type" />
@@ -298,12 +353,16 @@ export default function PromotionForm({ promotion, products }: Props) {
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="discount_value">Discount Value *</Label>
+                                    <Label htmlFor="discount_value">
+                                        Discount Value *
+                                    </Label>
                                     <div className="relative">
                                         {discountType === 'percentage' ? (
-                                            <Percent className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                            <Percent className="absolute top-3 left-3 h-4 w-4 text-muted-foreground" />
                                         ) : (
-                                            <span className="absolute left-3 top-3 text-muted-foreground text-sm">LKR</span>
+                                            <span className="absolute top-3 left-3 text-sm text-muted-foreground">
+                                                LKR
+                                            </span>
                                         )}
                                         <Input
                                             id="discount_value"
@@ -311,16 +370,22 @@ export default function PromotionForm({ promotion, products }: Props) {
                                             step="0.01"
                                             min="0"
                                             value={discountValue}
-                                            onChange={(e) => setDiscountValue(e.target.value)}
+                                            onChange={(e) =>
+                                                setDiscountValue(e.target.value)
+                                            }
                                             placeholder={
-                                                discountType === 'percentage' ? 'e.g., 20' : 'e.g., 50.00'
+                                                discountType === 'percentage'
+                                                    ? 'e.g., 20'
+                                                    : 'e.g., 50.00'
                                             }
                                             className="pl-10"
                                             required
                                         />
                                     </div>
                                     {errors.discount_value && (
-                                        <p className="text-sm text-red-500">{errors.discount_value}</p>
+                                        <p className="text-sm text-red-500">
+                                            {errors.discount_value}
+                                        </p>
                                     )}
                                     {discountType === 'percentage' && (
                                         <p className="text-xs text-muted-foreground">
@@ -334,14 +399,20 @@ export default function PromotionForm({ promotion, products }: Props) {
                                         Minimum Order Amount (Optional)
                                     </Label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-3 text-muted-foreground text-sm">LKR</span>
+                                        <span className="absolute top-3 left-3 text-sm text-muted-foreground">
+                                            LKR
+                                        </span>
                                         <Input
                                             id="minimum_order_amount"
                                             type="number"
                                             step="0.01"
                                             min="0"
                                             value={minimumOrderAmount}
-                                            onChange={(e) => setMinimumOrderAmount(e.target.value)}
+                                            onChange={(e) =>
+                                                setMinimumOrderAmount(
+                                                    e.target.value,
+                                                )
+                                            }
                                             placeholder="e.g., 100.00"
                                             className="pl-10"
                                         />
@@ -352,7 +423,8 @@ export default function PromotionForm({ promotion, products }: Props) {
                                         </p>
                                     )}
                                     <p className="text-xs text-muted-foreground">
-                                        Leave empty to apply discount on any order amount
+                                        Leave empty to apply discount on any
+                                        order amount
                                     </p>
                                 </div>
 
@@ -362,14 +434,20 @@ export default function PromotionForm({ promotion, products }: Props) {
                                             Maximum Discount Cap (Optional)
                                         </Label>
                                         <div className="relative">
-                                            <span className="absolute left-3 top-3 text-muted-foreground text-sm">LKR</span>
+                                            <span className="absolute top-3 left-3 text-sm text-muted-foreground">
+                                                LKR
+                                            </span>
                                             <Input
                                                 id="maximum_discount_amount"
                                                 type="number"
                                                 step="0.01"
                                                 min="0"
                                                 value={maximumDiscountAmount}
-                                                onChange={(e) => setMaximumDiscountAmount(e.target.value)}
+                                                onChange={(e) =>
+                                                    setMaximumDiscountAmount(
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 placeholder="e.g., 100.00"
                                                 className="pl-10"
                                             />
@@ -380,7 +458,8 @@ export default function PromotionForm({ promotion, products }: Props) {
                                             </p>
                                         )}
                                         <p className="text-xs text-muted-foreground">
-                                            Maximum discount amount for percentage-based discounts
+                                            Maximum discount amount for
+                                            percentage-based discounts
                                         </p>
                                     </div>
                                 )}
@@ -395,7 +474,8 @@ export default function PromotionForm({ promotion, products }: Props) {
                                     Validity Period
                                 </CardTitle>
                                 <CardDescription>
-                                    Set the start and expiry dates for this promotion
+                                    Set the start and expiry dates for this
+                                    promotion
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid gap-4">
@@ -405,18 +485,24 @@ export default function PromotionForm({ promotion, products }: Props) {
                                         <Input
                                             type="date"
                                             value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
+                                            onChange={(e) =>
+                                                setStartDate(e.target.value)
+                                            }
                                             required
                                         />
                                         <Input
                                             type="time"
                                             value={startTime}
-                                            onChange={(e) => setStartTime(e.target.value)}
+                                            onChange={(e) =>
+                                                setStartTime(e.target.value)
+                                            }
                                             required
                                         />
                                     </div>
                                     {errors.start_date && (
-                                        <p className="text-sm text-red-500">{errors.start_date}</p>
+                                        <p className="text-sm text-red-500">
+                                            {errors.start_date}
+                                        </p>
                                     )}
                                 </div>
 
@@ -426,19 +512,25 @@ export default function PromotionForm({ promotion, products }: Props) {
                                         <Input
                                             type="date"
                                             value={expiryDate}
-                                            onChange={(e) => setExpiryDate(e.target.value)}
+                                            onChange={(e) =>
+                                                setExpiryDate(e.target.value)
+                                            }
                                             min={startDate}
                                             required
                                         />
                                         <Input
                                             type="time"
                                             value={expiryTime}
-                                            onChange={(e) => setExpiryTime(e.target.value)}
+                                            onChange={(e) =>
+                                                setExpiryTime(e.target.value)
+                                            }
                                             required
                                         />
                                     </div>
                                     {errors.expiry_date && (
-                                        <p className="text-sm text-red-500">{errors.expiry_date}</p>
+                                        <p className="text-sm text-red-500">
+                                            {errors.expiry_date}
+                                        </p>
                                     )}
                                 </div>
                             </CardContent>
@@ -449,8 +541,8 @@ export default function PromotionForm({ promotion, products }: Props) {
                             <CardHeader>
                                 <CardTitle>Applicable Products</CardTitle>
                                 <CardDescription>
-                                    Select which products this promotion applies to.
-                                    Leave empty to apply to all products.
+                                    Select which products this promotion applies
+                                    to. Leave empty to apply to all products.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -462,8 +554,12 @@ export default function PromotionForm({ promotion, products }: Props) {
                                         >
                                             <Checkbox
                                                 id={`product-${product.id}`}
-                                                checked={selectedProductIds.includes(product.id)}
-                                                onCheckedChange={() => toggleProduct(product.id)}
+                                                checked={selectedProductIds.includes(
+                                                    product.id,
+                                                )}
+                                                onCheckedChange={() =>
+                                                    toggleProduct(product.id)
+                                                }
                                             />
                                             <Label
                                                 htmlFor={`product-${product.id}`}
@@ -471,7 +567,8 @@ export default function PromotionForm({ promotion, products }: Props) {
                                             >
                                                 <span>{product.name}</span>
                                                 <span className="text-sm text-muted-foreground">
-                                                    LKR {product.price.toFixed(2)}
+                                                    LKR{' '}
+                                                    {product.price.toFixed(2)}
                                                 </span>
                                             </Label>
                                         </div>
@@ -480,13 +577,19 @@ export default function PromotionForm({ promotion, products }: Props) {
                                 {selectedProductIds.length > 0 && (
                                     <div className="mt-4">
                                         <p className="text-sm font-medium">
-                                            Selected Products ({selectedProductIds.length}):
+                                            Selected Products (
+                                            {selectedProductIds.length}):
                                         </p>
                                         <div className="mt-2 flex flex-wrap gap-2">
                                             {selectedProductIds.map((id) => {
-                                                const product = products.find((p) => p.id === id);
+                                                const product = products.find(
+                                                    (p) => p.id === id,
+                                                );
                                                 return product ? (
-                                                    <Badge key={id} variant="secondary">
+                                                    <Badge
+                                                        key={id}
+                                                        variant="secondary"
+                                                    >
                                                         {product.name}
                                                     </Badge>
                                                 ) : null;
@@ -502,7 +605,8 @@ export default function PromotionForm({ promotion, products }: Props) {
                             <CardHeader>
                                 <CardTitle>Usage Limit & Status</CardTitle>
                                 <CardDescription>
-                                    Set usage limits and control promotion status
+                                    Set usage limits and control promotion
+                                    status
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid gap-4">
@@ -515,11 +619,15 @@ export default function PromotionForm({ promotion, products }: Props) {
                                         type="number"
                                         min="1"
                                         value={usageLimit}
-                                        onChange={(e) => setUsageLimit(e.target.value)}
+                                        onChange={(e) =>
+                                            setUsageLimit(e.target.value)
+                                        }
                                         placeholder="e.g., 100 (leave empty for unlimited)"
                                     />
                                     {errors.usage_limit && (
-                                        <p className="text-sm text-red-500">{errors.usage_limit}</p>
+                                        <p className="text-sm text-red-500">
+                                            {errors.usage_limit}
+                                        </p>
                                     )}
                                 </div>
 
@@ -527,10 +635,13 @@ export default function PromotionForm({ promotion, products }: Props) {
                                     <Checkbox
                                         id="is_active"
                                         checked={isActive}
-                                        onCheckedChange={(checked) => setIsActive(checked as boolean)}
+                                        onCheckedChange={(checked) =>
+                                            setIsActive(checked as boolean)
+                                        }
                                     />
                                     <Label htmlFor="is_active">
-                                        Active (promotion will be visible to retailers)
+                                        Active (promotion will be visible to
+                                        retailers)
                                     </Label>
                                 </div>
                             </CardContent>
@@ -543,7 +654,9 @@ export default function PromotionForm({ promotion, products }: Props) {
                             </Button>
                             <Button type="submit">
                                 <Save className="mr-2 h-4 w-4" />
-                                {isEditing ? 'Update Promotion' : 'Create Promotion'}
+                                {isEditing
+                                    ? 'Update Promotion'
+                                    : 'Create Promotion'}
                             </Button>
                         </div>
                     </div>

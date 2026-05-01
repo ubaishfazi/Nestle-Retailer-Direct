@@ -13,11 +13,16 @@ interface PromoCodeInputProps {
     onPromoApplied: (promotion: ValidatedPromotion | null) => void;
 }
 
-export default function PromoCodeInput({ orderTotal, productIds, onPromoApplied }: PromoCodeInputProps) {
+export default function PromoCodeInput({
+    orderTotal,
+    productIds,
+    onPromoApplied,
+}: PromoCodeInputProps) {
     const { toast } = useToast();
     const [promoCode, setPromoCode] = useState('');
     const [isValidating, setIsValidating] = useState(false);
-    const [appliedPromotion, setAppliedPromotion] = useState<ValidatedPromotion | null>(null);
+    const [appliedPromotion, setAppliedPromotion] =
+        useState<ValidatedPromotion | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const handleValidatePromo = async () => {
@@ -38,7 +43,10 @@ export default function PromoCodeInput({ orderTotal, productIds, onPromoApplied 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({
                     promo_code: promoCode.toUpperCase(),
@@ -62,7 +70,9 @@ export default function PromoCodeInput({ orderTotal, productIds, onPromoApplied 
                 onPromoApplied(null);
                 toast({
                     title: 'Invalid Promo Code',
-                    description: data.message || 'This promo code is invalid or expired.',
+                    description:
+                        data.message ||
+                        'This promo code is invalid or expired.',
                     variant: 'destructive',
                 });
             }
@@ -105,10 +115,12 @@ export default function PromoCodeInput({ orderTotal, productIds, onPromoApplied 
                                     placeholder="Enter promo code"
                                     value={promoCode}
                                     onChange={(e) => {
-                                        setPromoCode(e.target.value.toUpperCase());
+                                        setPromoCode(
+                                            e.target.value.toUpperCase(),
+                                        );
                                         setError(null);
                                     }}
-                                    className="uppercase flex-1"
+                                    className="flex-1 uppercase"
                                     disabled={isValidating}
                                 />
                                 <Button
@@ -124,33 +136,42 @@ export default function PromoCodeInput({ orderTotal, productIds, onPromoApplied 
                                 </Button>
                             </div>
                             {error && (
-                                <p className="text-sm text-red-500 flex items-center gap-1">
+                                <p className="flex items-center gap-1 text-sm text-red-500">
                                     <X className="h-3 w-3" />
                                     {error}
                                 </p>
                             )}
                             <p className="text-xs text-muted-foreground">
-                                Have a QR code? You can scan it to auto-fill the promo code.
+                                Have a QR code? You can scan it to auto-fill the
+                                promo code.
                             </p>
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            <div className="flex items-center justify-between rounded-lg border p-3 bg-emerald-50 dark:bg-emerald-950/20">
+                            <div className="flex items-center justify-between rounded-lg border bg-emerald-50 p-3 dark:bg-emerald-950/20">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2">
                                         <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
                                             <Check className="mr-1 h-3 w-3" />
                                             Applied
                                         </Badge>
-                                        <span className="font-medium">{appliedPromotion.title}</span>
+                                        <span className="font-medium">
+                                            {appliedPromotion.title}
+                                        </span>
                                     </div>
                                     <p className="mt-1 text-sm text-muted-foreground">
-                                        {appliedPromotion.discount_type === 'percentage'
+                                        {appliedPromotion.discount_type ===
+                                        'percentage'
                                             ? `${appliedPromotion.discount_value}% discount`
                                             : `LKR ${appliedPromotion.discount_value.toFixed(2)} discount`}
-                                        {appliedPromotion.discount_amount > 0 && (
+                                        {appliedPromotion.discount_amount >
+                                            0 && (
                                             <span className="ml-2 font-semibold text-emerald-600">
-                                                (-LKR ${appliedPromotion.discount_amount.toFixed(2)})
+                                                (-LKR $
+                                                {appliedPromotion.discount_amount.toFixed(
+                                                    2,
+                                                )}
+                                                )
                                             </span>
                                         )}
                                     </p>

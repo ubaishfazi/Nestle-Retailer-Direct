@@ -1,251 +1,123 @@
-# Digital Invoice Archive Implementation Summary
+# Product Selection Feature Implementation
 
-## Sprint 3 Feature: Digital Invoice Archive with Auto-Generation
+## Summary
+Implemented a new "Product Selection" question type for surveys that allows administrators to create questions with radio button options for selecting products from the Nestle system.
 
-### Implementation Complete ✓
+## Changes Made
 
-This implementation adds a complete digital invoice archive system that automatically generates professional PDF invoices when orders are approved.
+### 1. Database Models
+- **File**: `database/migrations/2026_04_29_000001_create_survey_questions_table.php`
+  - Added `product_selection` to `question_type` enum
+- **File**: `database/migrations/2026_04_30_214251_add_product_selection_to_surveys.php`
+  - New migration (no schema changes needed - uses existing `options` JSON field)
 
----
+### 2. Product Seeder
+- **File**: `database/seeders/ProductSeeder.php`
+  - Seed data contains 5 Nestlé products:
+    - Nestlé Milo 180ml
+    - Nestlé KitKat 45g
+    - Nestlé Nestomolt 400g
+    - Maggi 70g
+    - Nescafe Classic 100g
 
-## What Was Built
+### 3. Survey Controller
+- **File**: `app/Http/Controllers/SurveyController.php`
+  - Updated validation rules to include `product_selection` and `product_id`
+  - Store method: Save `product_ids` in `options` field for product_selection questions
+  - Update method: Handle product_ids in options for updates
+  - SubmitResponse method: Accept `product_id` in answers and store in `answer_value`
+  - ShowSurvey method: Load product data for product_selection questions
 
-### 1. Database Layer
-- **Migration**: `create_invoices_table` (✅ applied)
-- **Table**: `invoices` with 15 columns including foreign keys
-- **Constraints**: Cascade deletes, unique invoice numbers, indexed queries
+### 4. Survey Model
+- **File**: `app/Models/SurveyQuestion.php`
+  - No changes needed - already has `options` JSON field
 
-### 2. Models
-- **Invoice** (`app/Models/Invoice.php`)
-  - Relationships: order(), user(), distributor()
-  - 14 fillable fields
-  - Date casting for invoice_date
+### 5. Survey Answer Model
+- **File**: `app/Models/SurveyAnswer.php`
+  - No changes needed - already has `answer_value` array field
 
-- **Order** (`app/Models/Order.php`)
-  - Added: `invoice()` relationship (hasOne)
+### 6. Admin Survey Create Page
+- **File**: `resources/js/pages/admin/surveys/create.tsx`
+  - Added `product_selection` to question type enum
+  - Added product selection UI with checkboxes for multi-select
+  - Fetches products from API
+  - Saves `product_ids` array in question options
 
-- **User** (`app/Models/User.php`)
-  - Added: `invoices()` relationship (hasMany)
+### 7. Admin Survey Edit Page
+- **File**: `resources/js/pages/admin/surveys/edit.tsx`
+  - Added `product_selection` to question type enum
+  - Added product selection UI with checkboxes
+  - Pre-selects existing products when editing
 
-### 3. Service Layer
-- **InvoiceService** (`app/Services/InvoiceService.php`)
-  - `generateInvoice()` - Creates invoice from order
-  - `generateInvoiceNumber()` - INV-2026-000123 format
-  - `generatePdf()` - Builds PDF with DomPDF
-  - `streamPdf()` / `downloadPdf()` - PDF delivery
-  - `savePdf()` - Storage persistence
+### 8. Retailer Survey Answer Page
+- **File**: `resources/js/pages/retailer/survey/answer.tsx`
+  - Added `product_selection` to question type enum
+  - Added `products` array to Question interface
+  - Implemented radio button UI for product selection
+  - Shows product name and price for each option
+  - Submits `product_id` for product_selection questions
 
-### 4. Controllers
-- **InvoiceController** (`app/Http/Controllers/InvoiceController.php`)
-  - `index()` - Invoice archive UI
-  - `download()` - PDF download
-  - `view()` - Stream PDF in browser
-  - `generateForOrder()` - Manual generation (admin)
+## Question Types Supported
 
-- **OrderController** (`app/Http/Controllers/OrderController.php`)
-  - Modified `approve()` - Auto-generates invoice
-  - Modified `myOrders()` - Returns invoice status
-
-- **DistributorController** (`app/Http/Controllers/DistributorController.php`)
-  - Modified `approveOrder()` - Auto-generates invoice
-  - Modified `approveRetailerOrder()` - Auto-generates invoice
-  - Modified `approveIncomingOrder()` - Auto-generates invoice
-
-### 5. PDF Template
-- **`resources/views/invoices/template.blade.php`**
-  - Professional invoice design
-  - Company branding (Nestle Retailer Direct)
-  - Biller/payee sections
-  - Itemized order list
-  - Discounts and totals
-  - Payment/status info
-  - Terms and conditions
-
-### 6. Frontend Pages
-
-#### InvoiceArchive (`resources/js/pages/InvoiceArchive.tsx`)
-- Invoice list with 5 filter tabs (all/paid/pending/refunded/failed)
-- 4 statistic cards (total, paid, spent, average)
-- Individual invoice cards with details
-- View/Download PDF buttons
-- Responsive design with smooth animations
-
-#### MyOrderRecords (`resources/js/pages/myorderrecords.tsx`)
-- Added invoice badge next to order number
-- Link to view invoice directly
-- Shows invoice status indicator
-
-### 7. Routes (`routes/web.php`)
-```php
-GET  /invoices              → InvoiceController@index
-GET  /invoices/{id}/download → InvoiceController@download
-GET  /invoices/{id}/view     → InvoiceController@view
-```
-
----
+1. **text** - Short text input
+2. **textarea** - Long text input
+3. **product_suggestion** - Text input for suggesting products
+4. **product_selection** - Radio buttons for selecting from existing products
 
 ## How It Works
 
-### Flow: Order Approval → Invoice Generation
+### Admin Creates Survey
+1. Admin selects "Product Selection (Radio Buttons)" as question type
+2. Admin chooses products from the product list (checkboxes)
+3. Selected product IDs are stored in the question's `options` field as JSON
 
-1. **Admin or Distributor approves order**
-   - Clicks "Approve" button (Admin or Distributor UI)
+### Retailer Answers Survey
+1. Retailer sees radio buttons for each selected product
+2. Each option shows product name and price
+3. Retailer selects one product
+4. The selected product_id is stored in `answer_value` field
 
-2. **Order status updates to "approved"**
-   - Stock moves from warehouse to retailer inventory
+### Admin Views Responses
+1. Admin can see which product was selected
+2. Product information is displayed in survey responses
 
-3. **Invoice auto-generated**
-   - InvoiceService::generateInvoice($order) called
-   - Unique invoice number created (INV-YYYY-NNNNNN)
-   - Invoice record saved to database
-   - PDF generated via DomPDF
+## Data Flow
 
-4. **User receives confirmation**
-   - "Order approved! Invoice generated" message
-   - Invoice available in Digital Archive
+**Storage**:
+- Question options: `survey_questions.options` JSON field stores `{product_ids: [1, 5, 8]}`
+- Answer value: `survey_answers.answer_value` JSON field stores `{product_id: 5}`
 
-5. **Accessing invoices**
-   - Retailer navigates to `/invoices`
-   - Sees all invoices with filter/search
-   - Can view or download PDF
+**API**:
+- POST `/survey/{id}/submit` accepts `product_id` in answers
+- GET `/survey/{id}` returns product data for product_selection questions
 
----
+## UI/UX Features
 
-## Key Features
+- Clean radio button design with product cards
+- Hover states for better interactivity
+- Visual feedback for selected product
+- Product prices displayed in brand color (#00447C)
+- Multi-select checkbox grid for admin product selection
+- Shows count of selected products
+- Warning when no products selected
 
-✅ **Auto-Generation**: Invoices created immediately on approval  
-✅ **Unique Numbers**: INV-2026-000123 format with order ID  
-✅ **Professional PDFs**: Branded templates with all details  
-✅ **Role-Based Access**: Retailers see own, admins see all  
-✅ **Error Handling**: Graceful failures, order still approved  
-✅ **Audit Trail**: Logs all invoice generation attempts  
-✅ **Stats Dashboard**: Quick overview of invoice metrics  
-✅ **Download & View**: Multiple PDF access methods  
-✅ **Order Integration**: See invoice status on orders  
-✅ **Filter & Search**: Find invoices by status/type  
+## Testing
 
----
+- All migrations run successfully
+- Type checking passes (no errors in new code)
+- Build succeeds
+- Pre-existing lint/type errors are unrelated to new changes
 
-## Technical Stack
+## Security Considerations
 
-- **Backend**: Laravel 12, PHP 8.2
-- **PDF Library**: Barryvdh/laravel-dompdf
-- **Frontend**: Inertia.js, React, TypeScript
-- **Styling**: Tailwind CSS, Headless UI
-- **Database**: MySQL (via migrations)
+- Validates `product_id` exists in products table
+- Uses Laravel's validation system
+- Checks question type before processing product_id
+- CSRF protection included
 
----
+## Future Enhancements
 
-## Dependencies Added
-
-```json
-"barryvdh/laravel-dompdf": "v3.1.2"
-```
-
----
-
-## Testing Results
-
-### ✅ All Checks Passed
-
-- **PHP Syntax**: All files valid (php -l)
-- **Code Style**: Linter passes (pint)
-- **Routes**: 93 routes registered, 3 new
-- **Migrations**: Table created successfully
-- **Models**: Relationships defined correctly
-- **Services**: All methods functional
-- **Controllers**: Auth middleware working
-- **Frontend**: TypeScript compiles, React valid
-
----
-
-## Security Measures
-
-1. **Authentication Required**: `auth` middleware on all invoice routes
-2. **Authorization**: Users can only access their own invoices
-3. **Admin Override**: Admins can access any invoice
-4. **Validation**: Order IDs validated, invoices checked for duplicates
-5. **Foreign Keys**: Cascading deletes maintain integrity
-
----
-
-## Error Handling
-
-- Try-catch around invoice generation
-- Failures logged but don't block order approval
-- User notified of generation success
-- Admin can manually regenerate if needed
-- Graceful degradation if PDF library fails
-
----
-
-## File Statistics
-
-### New Files
-- 1 Migration
-- 1 Model (Invoice)
-- 1 Service (InvoiceService)
-- 1 Controller (InvoiceController)
-- 1 View (PDF template)
-- 1 Frontend page (InvoiceArchive)
-
-### Modified Files
-- 3 Controllers (Order, Distributor, Invoice)
-- 2 Models (Order, User)
-- 1 Routes file
-- 1 Frontend page (myorderrecords)
-- 1 Package config (composer.json)
-
-**Total**: ~1000 lines of code added
-
----
-
-## Usage Examples
-
-### For Retailers
-1. Place order via Quick Reorder
-2. Wait for distributor approval
-3. Order shows "Approved" status
-4. Invoice appears in Digital Archive
-5. Download PDF or view in browser
-
-### For Distributors
-1. Review incoming orders
-2. Click "Approve"
-3. Invoice auto-generated
-4. Retailer sees invoice in archive
-5. Can download and share with retailer
-
-### For Admins
-1. View all orders in dashboard
-2. Approve with one click
-3. Invoice generated automatically
-4. Access any invoice via archive
-5. Download for records
-
----
-
-## Future Enhancements (Optional)
-
-1. Email invoice to customer on approval
-2. Payment tracking against invoices
-3. Multi-currency support
-4. Custom templates per distributor
-5. Bulk download (ZIP)
-6. Advanced search/filter
-7. CSV/Excel export
-8. Invoice payment reminders
-9. Credit notes/refunds
-10. API access for integrations
-
----
-
-## Documentation
-
-See `INVOICE_IMPLEMENTATION.md` for detailed technical documentation.
-
----
-
-## Status: PRODUCTION READY ✅
-
-All features implemented, tested, and linted. Ready for deployment.
+- Could add product images in radio button options
+- Could add product search/filter for admin selection
+- Could allow selecting multiple products (checkboxes vs radio)
+- Could add stock level display for each product

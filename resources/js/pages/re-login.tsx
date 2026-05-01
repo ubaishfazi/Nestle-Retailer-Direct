@@ -3,7 +3,13 @@ import { Lock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 
 export default function ReLogin() {
     const form = useForm({
@@ -20,27 +26,32 @@ export default function ReLogin() {
     return (
         <>
             <Head title="Re-authenticate" />
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 p-4">
+            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 p-4">
                 <Card className="w-full max-w-md shadow-2xl">
                     <CardHeader className="text-center">
-                        <div className="flex justify-center mb-4">
-                            <div className="w-16 h-16 rounded-full bg-[#00447C]/10 flex items-center justify-center">
+                        <div className="mb-4 flex justify-center">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#00447C]/10">
                                 <Lock className="h-8 w-8 text-[#00447C]" />
                             </div>
                         </div>
-                        <CardTitle className="text-2xl">Re-authenticate Required</CardTitle>
+                        <CardTitle className="text-2xl">
+                            Re-authenticate Required
+                        </CardTitle>
                         <CardDescription className="text-base">
-                            For security reasons, please confirm your password to continue
+                            For security reasons, please confirm your password
+                            to continue
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
-                            <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                            <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
                             <p className="text-sm text-amber-800">
-                                This action requires additional verification. Your session will be restored after confirmation.
+                                This action requires additional verification.
+                                Your session will be restored after
+                                confirmation.
                             </p>
                         </div>
-                        
+
                         <form onSubmit={submit} className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="password">Password</Label>
@@ -49,20 +60,24 @@ export default function ReLogin() {
                                     type="password"
                                     placeholder="Enter your password"
                                     value={form.data.password}
-                                    onChange={(e) => form.setData('password', e.target.value)}
+                                    onChange={(e) =>
+                                        form.setData('password', e.target.value)
+                                    }
                                     className="h-12"
                                 />
                             </div>
-                            
-                            <Button 
-                                type="submit" 
-                                className="w-full h-12 bg-gradient-to-r from-[#00447C] to-[#003d6f] hover:from-[#003d6f] hover:to-[#00284a]"
+
+                            <Button
+                                type="submit"
+                                className="h-12 w-full bg-gradient-to-r from-[#00447C] to-[#003d6f] hover:from-[#003d6f] hover:to-[#00284a]"
                                 disabled={form.processing}
                             >
-                                {form.processing ? 'Verifying...' : 'Confirm Password'}
+                                {form.processing
+                                    ? 'Verifying...'
+                                    : 'Confirm Password'}
                             </Button>
                         </form>
-                        
+
                         <div className="mt-6 text-center">
                             <Button
                                 type="button"

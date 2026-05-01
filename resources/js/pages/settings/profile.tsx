@@ -77,11 +77,13 @@ export default function Profile({
 
                                 {shopName && (
                                     <div className="grid gap-2">
-                                        <Label htmlFor="shopName">Shop Name</Label>
+                                        <Label htmlFor="shopName">
+                                            Shop Name
+                                        </Label>
 
                                         <Input
                                             id="shopName"
-                                            className="mt-1 block w-full bg-slate-100 cursor-not-allowed"
+                                            className="mt-1 block w-full cursor-not-allowed bg-slate-100"
                                             defaultValue={shopName}
                                             disabled
                                             autoComplete="off"
@@ -92,11 +94,13 @@ export default function Profile({
 
                                 {companyName && (
                                     <div className="grid gap-2">
-                                        <Label htmlFor="companyName">Company Name</Label>
+                                        <Label htmlFor="companyName">
+                                            Company Name
+                                        </Label>
 
                                         <Input
                                             id="companyName"
-                                            className="mt-1 block w-full bg-slate-100 cursor-not-allowed"
+                                            className="mt-1 block w-full cursor-not-allowed bg-slate-100"
                                             defaultValue={companyName}
                                             disabled
                                             autoComplete="off"
@@ -111,7 +115,7 @@ export default function Profile({
                                     <Input
                                         id="email"
                                         type="email"
-                                        className="mt-1 block w-full bg-slate-100 cursor-not-allowed"
+                                        className="mt-1 block w-full cursor-not-allowed bg-slate-100"
                                         defaultValue={auth.user.email}
                                         name="email"
                                         disabled

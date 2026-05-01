@@ -71,44 +71,53 @@ export default function RetailerOrders({ orders, stats }: Props) {
     const [filter, setFilter] = useState('all');
 
     const handleApprove = (orderId: number) => {
-        router.post(`/distributor/retailer-orders/${orderId}/approve`, {}, {
-            preserveScroll: true,
-            onSuccess: () => {
-                toast({
-                    title: 'Order approved!',
-                    description: 'The retailer order has been approved.',
-                });
+        router.post(
+            `/distributor/retailer-orders/${orderId}/approve`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast({
+                        title: 'Order approved!',
+                        description: 'The retailer order has been approved.',
+                    });
+                },
+                onError: () => {
+                    toast({
+                        title: 'Failed to approve',
+                        description: 'There was an error approving the order.',
+                        variant: 'destructive',
+                    });
+                },
             },
-            onError: () => {
-                toast({
-                    title: 'Failed to approve',
-                    description: 'There was an error approving the order.',
-                    variant: 'destructive',
-                });
-            },
-        });
+        );
     };
 
     const handleReject = (orderId: number) => {
-        router.post(`/distributor/retailer-orders/${orderId}/reject`, {}, {
-            preserveScroll: true,
-            onSuccess: () => {
-                toast({
-                    title: 'Order rejected',
-                    description: 'The retailer order has been rejected.',
-                });
+        router.post(
+            `/distributor/retailer-orders/${orderId}/reject`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast({
+                        title: 'Order rejected',
+                        description: 'The retailer order has been rejected.',
+                    });
+                },
+                onError: () => {
+                    toast({
+                        title: 'Failed to reject',
+                        description: 'There was an error rejecting the order.',
+                        variant: 'destructive',
+                    });
+                },
             },
-            onError: () => {
-                toast({
-                    title: 'Failed to reject',
-                    description: 'There was an error rejecting the order.',
-                    variant: 'destructive',
-                });
-            },
-        });
+        );
     };
 
-    const filteredOrders = filter === 'all' ? orders : orders.filter(o => o.status === filter);
+    const filteredOrders =
+        filter === 'all' ? orders : orders.filter((o) => o.status === filter);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -117,62 +126,87 @@ export default function RetailerOrders({ orders, stats }: Props) {
             <div className="flex flex-col gap-6 p-6">
                 {/* Page Header */}
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Retailer Orders</h1>
-                    <p className="text-muted-foreground mt-1">View and manage incoming retailer orders</p>
+                    <h1 className="text-3xl font-bold tracking-tight">
+                        Retailer Orders
+                    </h1>
+                    <p className="mt-1 text-muted-foreground">
+                        View and manage incoming retailer orders
+                    </p>
                 </div>
 
                 {/* Stats Cards */}
                 <div className="grid gap-4 md:grid-cols-4">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total</CardTitle>
+                            <CardTitle className="text-sm font-medium">
+                                Total
+                            </CardTitle>
                             <Package className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{stats.total_orders}</div>
+                            <div className="text-2xl font-bold">
+                                {stats.total_orders}
+                            </div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+                            <CardTitle className="text-sm font-medium">
+                                Pending
+                            </CardTitle>
                             <Clock className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{stats.pending_orders}</div>
+                            <div className="text-2xl font-bold">
+                                {stats.pending_orders}
+                            </div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Approved</CardTitle>
+                            <CardTitle className="text-sm font-medium">
+                                Approved
+                            </CardTitle>
                             <CheckCircle className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{stats.approved_orders}</div>
+                            <div className="text-2xl font-bold">
+                                {stats.approved_orders}
+                            </div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Rejected</CardTitle>
+                            <CardTitle className="text-sm font-medium">
+                                Rejected
+                            </CardTitle>
                             <XCircle className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{stats.rejected_orders}</div>
+                            <div className="text-2xl font-bold">
+                                {stats.rejected_orders}
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* Filter Tabs */}
                 <div className="flex gap-2">
-                    {['all', 'pending', 'approved', 'rejected'].map((status) => (
-                        <Button
-                            key={status}
-                            variant={filter === status ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setFilter(status)}
-                        >
-                            {status.charAt(0).toUpperCase() + status.slice(1)}
-                        </Button>
-                    ))}
+                    {['all', 'pending', 'approved', 'rejected'].map(
+                        (status) => (
+                            <Button
+                                key={status}
+                                variant={
+                                    filter === status ? 'default' : 'outline'
+                                }
+                                size="sm"
+                                onClick={() => setFilter(status)}
+                            >
+                                {status.charAt(0).toUpperCase() +
+                                    status.slice(1)}
+                            </Button>
+                        ),
+                    )}
                 </div>
 
                 {/* Orders List */}
@@ -183,77 +217,117 @@ export default function RetailerOrders({ orders, stats }: Props) {
                     <CardContent>
                         {filteredOrders.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-12 text-center">
-                                <Package className="h-12 w-12 text-muted-foreground mb-4" />
-                                <h3 className="text-lg font-semibold">No orders found</h3>
-                                <p className="text-muted-foreground">No orders match the selected filter</p>
+                                <Package className="mb-4 h-12 w-12 text-muted-foreground" />
+                                <h3 className="text-lg font-semibold">
+                                    No orders found
+                                </h3>
+                                <p className="text-muted-foreground">
+                                    No orders match the selected filter
+                                </p>
                             </div>
                         ) : (
                             <div className="space-y-4">
                                 {filteredOrders.map((order) => (
                                     <div
                                         key={order.id}
-                                        className="rounded-lg border border-border p-4 hover:bg-muted/30 transition-colors"
+                                        className="rounded-lg border border-border p-4 transition-colors hover:bg-muted/30"
                                     >
-                                        <div className="flex items-center justify-between mb-4">
+                                        <div className="mb-4 flex items-center justify-between">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#00447C] to-[#003d6f] flex items-center justify-center text-white font-semibold">
+                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#00447C] to-[#003d6f] font-semibold text-white">
                                                     <User className="h-5 w-5" />
                                                 </div>
                                                 <div>
-                                                    <div className="font-medium">{order.user.name}</div>
+                                                    <div className="font-medium">
+                                                        {order.user.name}
+                                                    </div>
                                                     <div className="text-xs text-muted-foreground">
-                                                        {order.user.shop_name || order.user.email}
+                                                        {order.user.shop_name ||
+                                                            order.user.email}
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <Badge className={getStatusBadgeClass(order.status)}>
-                                                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                                <Badge
+                                                    className={getStatusBadgeClass(
+                                                        order.status,
+                                                    )}
+                                                >
+                                                    {order.status
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                        order.status.slice(1)}
                                                 </Badge>
                                                 <div className="text-right">
-                                                    <div className="font-semibold">LKR {order.total_amount.toFixed(2)}</div>
-                                                    <div className="text-xs text-muted-foreground">{order.created_at}</div>
+                                                    <div className="font-semibold">
+                                                        LKR{' '}
+                                                        {order.total_amount.toFixed(
+                                                            2,
+                                                        )}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        {order.created_at}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Order Items */}
                                         <div className="border-t pt-3">
-                                            <div className="text-xs font-medium text-muted-foreground mb-2">Order Items:</div>
+                                            <div className="mb-2 text-xs font-medium text-muted-foreground">
+                                                Order Items:
+                                            </div>
                                             <div className="flex flex-wrap gap-2">
-                                                {order.items.map((item, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1.5"
-                                                    >
-                                                        <div>
-                                                            <div className="text-xs font-medium">{item.product_name}</div>
-                                                            <div className="text-[10px] text-muted-foreground">
-                                                                Qty: {item.quantity} × LKR {item.price.toFixed(2)}
+                                                {order.items.map(
+                                                    (item, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="flex items-center gap-2 rounded-md bg-muted/50 px-2 py-1.5"
+                                                        >
+                                                            <div>
+                                                                <div className="text-xs font-medium">
+                                                                    {
+                                                                        item.product_name
+                                                                    }
+                                                                </div>
+                                                                <div className="text-[10px] text-muted-foreground">
+                                                                    Qty:{' '}
+                                                                    {
+                                                                        item.quantity
+                                                                    }{' '}
+                                                                    × LKR{' '}
+                                                                    {item.price.toFixed(
+                                                                        2,
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                ))}
+                                                    ),
+                                                )}
                                             </div>
                                         </div>
 
                                         {/* Action Buttons for Pending Orders */}
                                         {order.status === 'pending' && (
-                                            <div className="border-t pt-3 mt-3 flex gap-2">
+                                            <div className="mt-3 flex gap-2 border-t pt-3">
                                                 <Button
                                                     size="sm"
-                                                    onClick={() => handleApprove(order.id)}
+                                                    onClick={() =>
+                                                        handleApprove(order.id)
+                                                    }
                                                     className="bg-emerald-600 hover:bg-emerald-700"
                                                 >
-                                                    <CheckCircle className="h-4 w-4 mr-1" />
+                                                    <CheckCircle className="mr-1 h-4 w-4" />
                                                     Approve
                                                 </Button>
                                                 <Button
                                                     size="sm"
                                                     variant="destructive"
-                                                    onClick={() => handleReject(order.id)}
+                                                    onClick={() =>
+                                                        handleReject(order.id)
+                                                    }
                                                 >
-                                                    <XCircle className="h-4 w-4 mr-1" />
+                                                    <XCircle className="mr-1 h-4 w-4" />
                                                     Reject
                                                 </Button>
                                             </div>

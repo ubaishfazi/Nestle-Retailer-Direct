@@ -15,7 +15,9 @@ import { Store, Building2, User } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Register() {
-    const [selectedRole, setSelectedRole] = useState<'retailer' | 'distributor'>('retailer');
+    const [selectedRole, setSelectedRole] = useState<
+        'retailer' | 'distributor'
+    >('retailer');
 
     return (
         <AuthLayout
@@ -37,28 +39,48 @@ export default function Register() {
                                 <Label>I am a</Label>
                                 <RadioGroup
                                     value={selectedRole}
-                                    onValueChange={(value) => setSelectedRole(value as 'retailer' | 'distributor')}
+                                    onValueChange={(value) =>
+                                        setSelectedRole(
+                                            value as 'retailer' | 'distributor',
+                                        )
+                                    }
                                     className="grid grid-cols-2 gap-3"
                                 >
-                                    <input type="hidden" name="role" value={selectedRole} />
+                                    <input
+                                        type="hidden"
+                                        name="role"
+                                        value={selectedRole}
+                                    />
                                     <div>
-                                        <RadioGroupItem value="retailer" id="retailer" className="peer sr-only" />
+                                        <RadioGroupItem
+                                            value="retailer"
+                                            id="retailer"
+                                            className="peer sr-only"
+                                        />
                                         <Label
                                             htmlFor="retailer"
-                                            className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                                            className="flex cursor-pointer flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 peer-data-[state=checked]:border-primary hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
                                         >
                                             <Store className="mb-2 h-6 w-6" />
-                                            <span className="font-medium">Retailer</span>
+                                            <span className="font-medium">
+                                                Retailer
+                                            </span>
                                         </Label>
                                     </div>
                                     <div>
-                                        <RadioGroupItem value="distributor" id="distributor" className="peer sr-only" />
+                                        <RadioGroupItem
+                                            value="distributor"
+                                            id="distributor"
+                                            className="peer sr-only"
+                                        />
                                         <Label
                                             htmlFor="distributor"
-                                            className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                                            className="flex cursor-pointer flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 peer-data-[state=checked]:border-primary hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
                                         >
                                             <Building2 className="mb-2 h-6 w-6" />
-                                            <span className="font-medium">Distributor</span>
+                                            <span className="font-medium">
+                                                Distributor
+                                            </span>
                                         </Label>
                                     </div>
                                 </RadioGroup>
@@ -101,7 +123,9 @@ export default function Register() {
                             {selectedRole === 'retailer' && (
                                 <>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="shop_name">Shop Name</Label>
+                                        <Label htmlFor="shop_name">
+                                            Shop Name
+                                        </Label>
                                         <Input
                                             id="shop_name"
                                             type="text"
@@ -109,11 +133,15 @@ export default function Register() {
                                             name="shop_name"
                                             placeholder="Your shop name"
                                         />
-                                        <InputError message={errors.shop_name} />
+                                        <InputError
+                                            message={errors.shop_name}
+                                        />
                                     </div>
 
                                     <div className="grid gap-2">
-                                        <Label htmlFor="shop_address">Shop Address</Label>
+                                        <Label htmlFor="shop_address">
+                                            Shop Address
+                                        </Label>
                                         <Input
                                             id="shop_address"
                                             type="text"
@@ -121,12 +149,16 @@ export default function Register() {
                                             name="shop_address"
                                             placeholder="Street address"
                                         />
-                                        <InputError message={errors.shop_address} />
+                                        <InputError
+                                            message={errors.shop_address}
+                                        />
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="grid gap-2">
-                                            <Label htmlFor="shop_city">City</Label>
+                                            <Label htmlFor="shop_city">
+                                                City
+                                            </Label>
                                             <Input
                                                 id="shop_city"
                                                 type="text"
@@ -134,10 +166,14 @@ export default function Register() {
                                                 name="shop_city"
                                                 placeholder="City"
                                             />
-                                            <InputError message={errors.shop_city} />
+                                            <InputError
+                                                message={errors.shop_city}
+                                            />
                                         </div>
                                         <div className="grid gap-2">
-                                            <Label htmlFor="shop_phone">Phone</Label>
+                                            <Label htmlFor="shop_phone">
+                                                Phone
+                                            </Label>
                                             <Input
                                                 id="shop_phone"
                                                 type="tel"
@@ -146,7 +182,9 @@ export default function Register() {
                                                 name="shop_phone"
                                                 placeholder="10 digit phone number"
                                             />
-                                            <InputError message={errors.shop_phone} />
+                                            <InputError
+                                                message={errors.shop_phone}
+                                            />
                                         </div>
                                     </div>
                                 </>
@@ -156,7 +194,9 @@ export default function Register() {
                             {selectedRole === 'distributor' && (
                                 <>
                                     <div className="grid gap-2">
-                                        <Label htmlFor="company_name">Company Name</Label>
+                                        <Label htmlFor="company_name">
+                                            Company Name
+                                        </Label>
                                         <Input
                                             id="company_name"
                                             type="text"
@@ -164,11 +204,15 @@ export default function Register() {
                                             name="company_name"
                                             placeholder="Your company name"
                                         />
-                                        <InputError message={errors.company_name} />
+                                        <InputError
+                                            message={errors.company_name}
+                                        />
                                     </div>
 
                                     <div className="grid gap-2">
-                                        <Label htmlFor="company_address">Company Address</Label>
+                                        <Label htmlFor="company_address">
+                                            Company Address
+                                        </Label>
                                         <Input
                                             id="company_address"
                                             type="text"
@@ -176,12 +220,16 @@ export default function Register() {
                                             name="company_address"
                                             placeholder="Street address"
                                         />
-                                        <InputError message={errors.company_address} />
+                                        <InputError
+                                            message={errors.company_address}
+                                        />
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="grid gap-2">
-                                            <Label htmlFor="company_city">City</Label>
+                                            <Label htmlFor="company_city">
+                                                City
+                                            </Label>
                                             <Input
                                                 id="company_city"
                                                 type="text"
@@ -189,10 +237,14 @@ export default function Register() {
                                                 name="company_city"
                                                 placeholder="City"
                                             />
-                                            <InputError message={errors.company_city} />
+                                            <InputError
+                                                message={errors.company_city}
+                                            />
                                         </div>
                                         <div className="grid gap-2">
-                                            <Label htmlFor="company_phone">Phone</Label>
+                                            <Label htmlFor="company_phone">
+                                                Phone
+                                            </Label>
                                             <Input
                                                 id="company_phone"
                                                 type="tel"
@@ -201,7 +253,9 @@ export default function Register() {
                                                 name="company_phone"
                                                 placeholder="10 digit phone number"
                                             />
-                                            <InputError message={errors.company_phone} />
+                                            <InputError
+                                                message={errors.company_phone}
+                                            />
                                         </div>
                                     </div>
                                 </>

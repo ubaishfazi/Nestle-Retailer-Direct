@@ -16,6 +16,10 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->user() || ! $request->user()->isAdmin()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthorized.'], 401);
+            }
+
             // Redirect users to their appropriate dashboard based on role
             if ($request->user()) {
                 if ($request->user()->isDistributor()) {

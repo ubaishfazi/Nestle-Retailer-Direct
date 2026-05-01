@@ -53,14 +53,23 @@ class RedirectBasedOnRole
 
             // Redirect based on role mismatch
             if ($user->isAdmin() && ($isDistributorRoute || $isRetailerRoute)) {
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'Unauthorized.'], 401);
+                }
                 return redirect()->route('dashboard');
             }
 
             if ($user->isDistributor() && ($isAdminRoute || $isRetailerRoute)) {
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'Unauthorized.'], 401);
+                }
                 return redirect()->route('distributor.home');
             }
 
             if ($user->isRetailer() && ($isAdminRoute || $isDistributorRoute)) {
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'Unauthorized.'], 401);
+                }
                 return redirect()->route('home');
             }
 

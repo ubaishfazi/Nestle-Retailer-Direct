@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { UserCog, Tag } from 'lucide-react';
+import { UserCog, Tag, ClipboardList } from 'lucide-react';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -24,6 +24,11 @@ const mainNavItems: NavItem[] = [
         href: '/promotions',
         icon: Tag,
     },
+    {
+        title: 'Surveys',
+        href: '/surveys',
+        icon: ClipboardList,
+    },
 ];
 
 export function AppSidebar() {
@@ -35,7 +40,11 @@ export function AppSidebar() {
                         <SidebarMenuButton size="lg" asChild>
                             <Link href="/dashboard/user-approvals" prefetch>
                                 <div className="flex items-center gap-3">
-                                    <img src="/Nestle-Logo.png" alt="Nestlé" className="h-8 w-auto object-contain" />
+                                    <img
+                                        src="/Nestle-Logo.png"
+                                        alt="Nestlé"
+                                        className="h-8 w-auto object-contain"
+                                    />
                                 </div>
                             </Link>
                         </SidebarMenuButton>

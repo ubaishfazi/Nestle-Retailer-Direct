@@ -1,6 +1,24 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { Search, Filter, ChevronDown, Package, AlertTriangle, TrendingUp, TrendingDown, Eye, EyeOff, ChevronLeft, HelpCircle, LayoutDashboard, Settings, Edit2, Save, X, User } from 'lucide-react';
+import {
+    Search,
+    Filter,
+    ChevronDown,
+    Package,
+    AlertTriangle,
+    TrendingUp,
+    TrendingDown,
+    Eye,
+    EyeOff,
+    ChevronLeft,
+    HelpCircle,
+    LayoutDashboard,
+    Settings,
+    Edit2,
+    Save,
+    X,
+    User,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -37,7 +55,10 @@ interface Props {
     categories: string[];
 }
 
-function getStockStatus(status: string, quantity: number): 'in_stock' | 'low_stock' | 'out_of_stock' {
+function getStockStatus(
+    status: string,
+    quantity: number,
+): 'in_stock' | 'low_stock' | 'out_of_stock' {
     if (quantity === 0) return 'out_of_stock';
     if (quantity <= 20) return 'low_stock';
     return 'in_stock';
@@ -79,17 +100,27 @@ export default function Stock({ products, categories }: Props) {
     const [editQuantity, setEditQuantity] = useState<number>(0);
 
     // Update stock status based on quantity (>20 in stock, <=20 low stock, =0 out of stock)
-    const productsWithUpdatedStatus = products.map(product => ({
+    const productsWithUpdatedStatus = products.map((product) => ({
         ...product,
-        stock_status: getStockStatus(product.stock_status, product.stock_quantity)
+        stock_status: getStockStatus(
+            product.stock_status,
+            product.stock_quantity,
+        ),
     }));
 
     const filteredProducts = productsWithUpdatedStatus
         .filter((product) => {
-            const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                product.description.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesStockFilter = stockFilter === 'all' || product.stock_status === stockFilter;
-            const shouldShowOutOfStock = showOutOfStock || product.stock_status !== 'out_of_stock';
+            const matchesSearch =
+                product.name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                product.description
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase());
+            const matchesStockFilter =
+                stockFilter === 'all' || product.stock_status === stockFilter;
+            const shouldShowOutOfStock =
+                showOutOfStock || product.stock_status !== 'out_of_stock';
             return matchesSearch && matchesStockFilter && shouldShowOutOfStock;
         })
         .sort((a, b) => {
@@ -116,33 +147,49 @@ export default function Stock({ products, categories }: Props) {
 
     const handleSaveQuantity = () => {
         if (editingProduct) {
-            router.put(`/stock/${editingProduct.id}`, {
-                stock_quantity: editQuantity
-            }, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast({
-                        title: 'Stock updated!',
-                        description: `${editingProduct.name} quantity updated to ${editQuantity} units.`,
-                    });
-                    setEditingProduct(null);
+            router.put(
+                `/stock/${editingProduct.id}`,
+                {
+                    stock_quantity: editQuantity,
                 },
-                onError: () => {
-                    toast({
-                        title: 'Failed to update',
-                        description: 'There was an error updating the stock quantity.',
-                        variant: 'destructive',
-                    });
-                }
-            });
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        toast({
+                            title: 'Stock updated!',
+                            description: `${editingProduct.name} quantity updated to ${editQuantity} units.`,
+                        });
+                        setEditingProduct(null);
+                    },
+                    onError: () => {
+                        toast({
+                            title: 'Failed to update',
+                            description:
+                                'There was an error updating the stock quantity.',
+                            variant: 'destructive',
+                        });
+                    },
+                },
+            );
         }
     };
 
     const stats = {
         total_products: products.length,
-        in_stock: products.filter(p => getStockStatus(p.stock_status, p.stock_quantity) === 'in_stock').length,
-        low_stock: products.filter(p => getStockStatus(p.stock_status, p.stock_quantity) === 'low_stock').length,
-        out_of_stock: products.filter(p => getStockStatus(p.stock_status, p.stock_quantity) === 'out_of_stock').length,
+        in_stock: products.filter(
+            (p) =>
+                getStockStatus(p.stock_status, p.stock_quantity) === 'in_stock',
+        ).length,
+        low_stock: products.filter(
+            (p) =>
+                getStockStatus(p.stock_status, p.stock_quantity) ===
+                'low_stock',
+        ).length,
+        out_of_stock: products.filter(
+            (p) =>
+                getStockStatus(p.stock_status, p.stock_quantity) ===
+                'out_of_stock',
+        ).length,
     };
 
     return (
@@ -155,14 +202,17 @@ export default function Stock({ products, categories }: Props) {
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00447C] via-[#003d6f] to-[#00284a]"></div>
 
                 {/* Subtle noise texture */}
-                <div className="absolute inset-0 opacity-[0.02]" style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-                }}></div>
+                <div
+                    className="absolute inset-0 opacity-[0.02]"
+                    style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                    }}
+                ></div>
 
                 {/* Animated glow orbs */}
                 <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-0 left-1/4 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl"></div>
-                    <div className="absolute top-0 right-1/4 w-24 h-24 bg-cyan-400/10 rounded-full blur-2xl"></div>
+                    <div className="absolute top-0 left-1/4 h-32 w-32 rounded-full bg-blue-400/10 blur-2xl"></div>
+                    <div className="absolute top-0 right-1/4 h-24 w-24 rounded-full bg-cyan-400/10 blur-2xl"></div>
                 </div>
 
                 {/* Content */}
@@ -170,125 +220,156 @@ export default function Stock({ products, categories }: Props) {
                     {/* Back button */}
                     <Link href="/" className="group flex items-center gap-2">
                         <div className="relative">
-                            <div className="absolute inset-0 bg-white/20 rounded-lg blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <ChevronLeft className="relative h-6 w-6 text-white group-hover:scale-110 transition-transform duration-300" />
+                            <div className="absolute inset-0 rounded-lg bg-white/20 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100"></div>
+                            <ChevronLeft className="relative h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
                         </div>
                     </Link>
 
                     {/* Title */}
-                    <h1 className="text-base md:text-lg font-bold text-white tracking-widest uppercase">Inventory</h1>
+                    <h1 className="text-base font-bold tracking-widest text-white uppercase md:text-lg">
+                        Inventory
+                    </h1>
 
                     {/* Help button */}
                     <button className="group">
                         <div className="relative">
-                            <div className="absolute inset-0 bg-white/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <HelpCircle className="relative h-6 w-6 text-white/80 group-hover:text-white group-hover:scale-110 transition-all duration-300" />
+                            <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100"></div>
+                            <HelpCircle className="relative h-6 w-6 text-white/80 transition-all duration-300 group-hover:scale-110 group-hover:text-white" />
                         </div>
                     </button>
                 </div>
             </header>
 
             {/* Main Content */}
-            <main className="container md:py-6 pb-56 px-3 md:px-4">
+            <main className="container px-3 pb-56 md:px-4 md:py-6">
                 <div className="flex flex-col gap-6">
-
                     {/* Results Count */}
                     <div className="flex items-center justify-between">
-                        <p className="text-xs md:text-sm text-muted-foreground">
-                            Showing {filteredProducts.length} of {products.length} products
+                        <p className="text-xs text-muted-foreground md:text-sm">
+                            Showing {filteredProducts.length} of{' '}
+                            {products.length} products
                         </p>
                     </div>
 
                     {/* Products Table */}
                     {filteredProducts.length === 0 ? (
                         <Card className="border-0 shadow-lg">
-                            <CardContent className="flex flex-col items-center justify-center py-12 text-center px-4">
-                                <Package className="h-12 w-12 text-muted-foreground mb-4" />
-                                <h3 className="text-lg font-semibold">No products found</h3>
-                                <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
+                            <CardContent className="flex flex-col items-center justify-center px-4 py-12 text-center">
+                                <Package className="mb-4 h-12 w-12 text-muted-foreground" />
+                                <h3 className="text-lg font-semibold">
+                                    No products found
+                                </h3>
+                                <p className="text-muted-foreground">
+                                    Try adjusting your search or filter criteria
+                                </p>
                             </CardContent>
                         </Card>
                     ) : (
                         <>
                             {/* Desktop Table View */}
-                            <Card className="border-0 shadow-lg overflow-hidden max-w-8xl mx-auto hidden md:block">
+                            <Card className="max-w-8xl mx-auto hidden overflow-hidden border-0 shadow-lg md:block">
                                 <table className="w-full">
                                     <thead className="bg-muted/50">
                                         <tr>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Product
                                             </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Price
                                             </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Stock Level
                                             </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Quantity
                                             </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Status
                                             </th>
-                                            <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                            <th className="px-4 py-3 text-right text-xs font-medium tracking-wider text-muted-foreground uppercase">
                                                 Actions
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border">
                                         {filteredProducts.map((product) => (
-                                            <tr key={product.id} className="hover:bg-muted/30 transition-colors">
+                                            <tr
+                                                key={product.id}
+                                                className="transition-colors hover:bg-muted/30"
+                                            >
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-50 border border-border overflow-hidden flex-shrink-0">
+                                                        <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border border-border bg-gradient-to-br from-gray-100 to-gray-50">
                                                             <img
-                                                                src={product.image}
-                                                                alt={product.name}
+                                                                src={
+                                                                    product.image
+                                                                }
+                                                                alt={
+                                                                    product.name
+                                                                }
                                                                 className="h-full w-full object-cover"
                                                             />
                                                         </div>
                                                         <div>
-                                                            <div className="font-medium text-sm">{product.name}</div>
-                                                            <div className="text-xs text-muted-foreground line-clamp-1 max-w-[180px]">
-                                                                {product.description}
+                                                            <div className="text-sm font-medium">
+                                                                {product.name}
+                                                            </div>
+                                                            <div className="line-clamp-1 max-w-[180px] text-xs text-muted-foreground">
+                                                                {
+                                                                    product.description
+                                                                }
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 text-sm font-semibold text-[#00447C]">
-                                                    LKR {product.price.toFixed(2)}
+                                                    LKR{' '}
+                                                    {product.price.toFixed(2)}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden max-w-[80px]">
+                                                        <div className="h-2 max-w-[80px] flex-1 overflow-hidden rounded-full bg-muted">
                                                             <div
                                                                 className={`h-full rounded-full ${
-                                                                    product.stock_status === 'in_stock'
+                                                                    product.stock_status ===
+                                                                    'in_stock'
                                                                         ? 'bg-emerald-500'
-                                                                        : product.stock_status === 'low_stock'
-                                                                        ? 'bg-amber-500'
-                                                                        : 'bg-red-500'
+                                                                        : product.stock_status ===
+                                                                            'low_stock'
+                                                                          ? 'bg-amber-500'
+                                                                          : 'bg-red-500'
                                                                 }`}
                                                                 style={{
-                                                                    width: `${Math.min(100, (product.stock_quantity / 100) * 100)}%`
+                                                                    width: `${Math.min(100, (product.stock_quantity / 100) * 100)}%`,
                                                                 }}
                                                             />
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 text-sm font-medium">
-                                                    {product.stock_quantity} units
+                                                    {product.stock_quantity}{' '}
+                                                    units
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <Badge className={getStockStatusBadge(product.stock_status)}>
-                                                        {getStockStatusLabel(product.stock_status)}
+                                                    <Badge
+                                                        className={getStockStatusBadge(
+                                                            product.stock_status,
+                                                        )}
+                                                    >
+                                                        {getStockStatusLabel(
+                                                            product.stock_status,
+                                                        )}
                                                     </Badge>
                                                 </td>
                                                 <td className="px-4 py-3 text-right">
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
-                                                        onClick={() => handleEditClick(product)}
+                                                        onClick={() =>
+                                                            handleEditClick(
+                                                                product,
+                                                            )
+                                                        }
                                                     >
                                                         <Edit2 className="h-4 w-4" />
                                                     </Button>
@@ -302,52 +383,73 @@ export default function Stock({ products, categories }: Props) {
                             {/* Mobile Card View */}
                             <div className="grid gap-3 md:hidden">
                                 {filteredProducts.map((product) => (
-                                    <Card key={product.id} className="border-0 shadow-md overflow-hidden">
+                                    <Card
+                                        key={product.id}
+                                        className="overflow-hidden border-0 shadow-md"
+                                    >
                                         <CardContent className="p-3">
                                             <div className="flex items-start gap-3">
-                                                <div className="h-16 w-16 rounded-lg bg-gradient-to-br from-gray-100 to-gray-50 border border-border overflow-hidden flex-shrink-0">
+                                                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-border bg-gradient-to-br from-gray-100 to-gray-50">
                                                     <img
                                                         src={product.image}
                                                         alt={product.name}
                                                         className="h-full w-full object-cover"
                                                     />
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="font-semibold text-sm truncate">{product.name}</div>
-                                                    <div className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="truncate text-sm font-semibold">
+                                                        {product.name}
+                                                    </div>
+                                                    <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
                                                         {product.description}
                                                     </div>
-                                                    <div className="flex items-center gap-2 mt-2">
-                                                        <Badge className={`${getStockStatusBadge(product.stock_status)} text-[10px] px-1.5 py-0`}>
-                                                            {getStockStatusLabel(product.stock_status)}
+                                                    <div className="mt-2 flex items-center gap-2">
+                                                        <Badge
+                                                            className={`${getStockStatusBadge(product.stock_status)} px-1.5 py-0 text-[10px]`}
+                                                        >
+                                                            {getStockStatusLabel(
+                                                                product.stock_status,
+                                                            )}
                                                         </Badge>
-                                                        <span className="text-xs font-semibold text-[#00447C]">LKR {product.price.toFixed(2)}</span>
+                                                        <span className="text-xs font-semibold text-[#00447C]">
+                                                            LKR{' '}
+                                                            {product.price.toFixed(
+                                                                2,
+                                                            )}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                                            <div className="mt-3 flex items-center justify-between border-t pt-3">
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
+                                                    <div className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
                                                         <div
                                                             className={`h-full rounded-full ${
-                                                                product.stock_status === 'in_stock'
+                                                                product.stock_status ===
+                                                                'in_stock'
                                                                     ? 'bg-emerald-500'
-                                                                    : product.stock_status === 'low_stock'
-                                                                    ? 'bg-amber-500'
-                                                                    : 'bg-red-500'
+                                                                    : product.stock_status ===
+                                                                        'low_stock'
+                                                                      ? 'bg-amber-500'
+                                                                      : 'bg-red-500'
                                                             }`}
                                                             style={{
-                                                                width: `${Math.min(100, (product.stock_quantity / 100) * 100)}%`
+                                                                width: `${Math.min(100, (product.stock_quantity / 100) * 100)}%`,
                                                             }}
                                                         />
                                                     </div>
-                                                    <span className="text-xs text-muted-foreground">{product.stock_quantity} units</span>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {product.stock_quantity}{' '}
+                                                        units
+                                                    </span>
                                                 </div>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     className="h-8 px-2"
-                                                    onClick={() => handleEditClick(product)}
+                                                    onClick={() =>
+                                                        handleEditClick(product)
+                                                    }
                                                 >
                                                     <Edit2 className="h-4 w-4" />
                                                 </Button>
@@ -360,38 +462,90 @@ export default function Stock({ products, categories }: Props) {
                     )}
 
                     {/* Edit Quantity Dialog */}
-                    <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
-                        <DialogContent className="sm:max-w-[425px] max-w-[90vw] w-full p-4">
+                    <Dialog
+                        open={!!editingProduct}
+                        onOpenChange={() => setEditingProduct(null)}
+                    >
+                        <DialogContent className="w-full max-w-[90vw] p-4 sm:max-w-[425px]">
                             <DialogHeader>
-                                <DialogTitle className="text-base md:text-lg">Edit Stock Quantity</DialogTitle>
+                                <DialogTitle className="text-base md:text-lg">
+                                    Edit Stock Quantity
+                                </DialogTitle>
                                 <DialogDescription className="text-xs md:text-sm">
-                                    Update the stock quantity for {editingProduct?.name}
+                                    Update the stock quantity for{' '}
+                                    {editingProduct?.name}
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="quantity" className="text-xs md:text-sm">Quantity</Label>
+                                    <Label
+                                        htmlFor="quantity"
+                                        className="text-xs md:text-sm"
+                                    >
+                                        Quantity
+                                    </Label>
                                     <Input
                                         id="quantity"
                                         type="number"
                                         min="0"
                                         value={editQuantity}
-                                        onChange={(e) => setEditQuantity(parseInt(e.target.value) || 0)}
+                                        onChange={(e) =>
+                                            setEditQuantity(
+                                                parseInt(e.target.value) || 0,
+                                            )
+                                        }
                                         className="w-full text-sm"
                                     />
                                 </div>
-                                <div className="text-xs md:text-sm text-muted-foreground space-y-2">
-                                    <p>Current status: <Badge className={getStockStatusBadge(editingProduct?.stock_status || 'in_stock')}>{getStockStatusLabel(editingProduct?.stock_status || 'in_stock')}</Badge></p>
-                                    <p>New status: <Badge className={getStockStatusBadge(getStockStatus('', editQuantity))}>{getStockStatusLabel(getStockStatus('', editQuantity))}</Badge></p>
+                                <div className="space-y-2 text-xs text-muted-foreground md:text-sm">
+                                    <p>
+                                        Current status:{' '}
+                                        <Badge
+                                            className={getStockStatusBadge(
+                                                editingProduct?.stock_status ||
+                                                    'in_stock',
+                                            )}
+                                        >
+                                            {getStockStatusLabel(
+                                                editingProduct?.stock_status ||
+                                                    'in_stock',
+                                            )}
+                                        </Badge>
+                                    </p>
+                                    <p>
+                                        New status:{' '}
+                                        <Badge
+                                            className={getStockStatusBadge(
+                                                getStockStatus(
+                                                    '',
+                                                    editQuantity,
+                                                ),
+                                            )}
+                                        >
+                                            {getStockStatusLabel(
+                                                getStockStatus(
+                                                    '',
+                                                    editQuantity,
+                                                ),
+                                            )}
+                                        </Badge>
+                                    </p>
                                 </div>
                             </div>
                             <DialogFooter className="gap-2 sm:gap-0">
-                                <Button variant="outline" onClick={() => setEditingProduct(null)} className="w-full sm:w-auto">
-                                    <X className="h-3 w-3 md:h-4 md:w-4 mr-2" />
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setEditingProduct(null)}
+                                    className="w-full sm:w-auto"
+                                >
+                                    <X className="mr-2 h-3 w-3 md:h-4 md:w-4" />
                                     Cancel
                                 </Button>
-                                <Button onClick={handleSaveQuantity} className="w-full sm:w-auto">
-                                    <Save className="h-3 w-3 md:h-4 md:w-4 mr-2" />
+                                <Button
+                                    onClick={handleSaveQuantity}
+                                    className="w-full sm:w-auto"
+                                >
+                                    <Save className="mr-2 h-3 w-3 md:h-4 md:w-4" />
                                     Save Changes
                                 </Button>
                             </DialogFooter>
@@ -404,22 +558,25 @@ export default function Stock({ products, categories }: Props) {
             <div className="h-20"></div>
 
             {/* SKILL.md Designed Footer */}
-            <footer className="fixed bottom-0 left-0 right-0 z-50">
+            <footer className="fixed right-0 bottom-0 left-0 z-50">
                 {/* Deep navy gradient base */}
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00447C] via-[#003d6f] to-[#00284a]"></div>
 
                 {/* Subtle noise texture */}
-                <div className="absolute inset-0 opacity-[0.02]" style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`
-                }}></div>
+                <div
+                    className="absolute inset-0 opacity-[0.02]"
+                    style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                    }}
+                ></div>
 
                 {/* Animated glow */}
                 <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-blue-400/10 rounded-full blur-2xl animate-pulse"></div>
+                    <div className="absolute top-0 left-1/2 h-40 w-40 -translate-x-1/2 animate-pulse rounded-full bg-blue-400/10 blur-2xl"></div>
                 </div>
 
                 {/* Top accent line */}
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                <div className="absolute top-0 right-0 left-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
 
                 {/* Content */}
                 <div className="relative container px-4 py-4">
@@ -434,10 +591,10 @@ export default function Stock({ products, categories }: Props) {
                                         className="group relative flex flex-col items-center gap-1.5 p-2"
                                     >
                                         <div className="relative">
-                                            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/40 to-cyan-400/40 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                            <Icon className="relative h-5 w-5 text-white/60 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-0.5" />
+                                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400/40 to-cyan-400/40 opacity-0 blur-md transition-opacity duration-500 group-hover:opacity-100"></div>
+                                            <Icon className="relative h-5 w-5 text-white/60 transition-all duration-500 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:text-white" />
                                         </div>
-                                        <span className="text-[10px] text-white/50 font-medium tracking-wider uppercase group-hover:text-white/80 transition-colors duration-500">
+                                        <span className="text-[10px] font-medium tracking-wider text-white/50 uppercase transition-colors duration-500 group-hover:text-white/80">
                                             {link.name}
                                         </span>
                                     </Link>
@@ -448,9 +605,9 @@ export default function Stock({ products, categories }: Props) {
 
                     {/* Decorative pulse dot */}
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <div className="relative w-1.5 h-1.5">
-                            <div className="absolute inset-0 w-1.5 h-1.5 rounded-full bg-blue-400/40 animate-ping"></div>
-                            <div className="relative w-1.5 h-1.5 rounded-full bg-blue-400/60"></div>
+                        <div className="relative h-1.5 w-1.5">
+                            <div className="absolute inset-0 h-1.5 w-1.5 animate-ping rounded-full bg-blue-400/40"></div>
+                            <div className="relative h-1.5 w-1.5 rounded-full bg-blue-400/60"></div>
                         </div>
                     </div>
                 </div>

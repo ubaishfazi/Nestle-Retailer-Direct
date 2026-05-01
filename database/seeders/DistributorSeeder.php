@@ -47,12 +47,13 @@ class DistributorSeeder extends Seeder
         $products = Product::all();
 
         // Initial warehouse stock for each product (for demo purposes)
+        // Product IDs correspond to ProductSeeder order: 1=Milo, 2=KitKat, 3=Nestomolt, 4=Maggi, 5=Nescafe
         $initialStock = [
-            1 => 100, // Milo Powder
-            2 => 200, // Pure Life Water
-            3 => 50,  // Coffee Mate
-            4 => 150, // Cerelac Wheat
-            5 => 300, // KitKat Bar
+            1 => 100, // Nestlé Milo 180ml
+            2 => 200, // Nestlé KitKat 45g
+            3 => 50,  // Nestlé Nestomolt 400g
+            4 => 150, // Maggi 70g
+            5 => 300, // Nescafe Classic 100g
         ];
 
         foreach ($distributors as $distributorData) {
