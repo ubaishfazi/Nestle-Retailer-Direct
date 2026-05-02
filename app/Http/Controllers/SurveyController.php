@@ -227,6 +227,80 @@ class SurveyController extends Controller
     }
 
     /**
+     * Show survey responses with analytics for distributor.
+     */
+    public function distributorResponses(Survey $survey)
+    {
+        $this->authorizeDistributor($survey);
+
+        $survey->load('questions');
+
+        $responses = SurveyResponse::where('survey_id', $survey->id)
+            ->with(['retailer:id,name,email', 'answers.question'])
+            ->orderBy('submitted_at', 'desc')
+            ->get()
+            ->map(function ($response) {
+                return [
+                    'id' => $response->id,
+                    'retailer' => [
+                        'id' => $response->retailer->id,
+                        'name' => $response->retailer->name,
+                        'email' => $response->retailer->email,
+                    ],
+                    'submitted_at' => $response->submitted_at?->format('Y-m-d H:i'),
+                    'additional_comments' => $response->additional_comments,
+                    'answers' => $response->answers->map(function ($answer) {
+                        $answerValue = $answer->answer_value;
+                        $productData = null;
+                        $displayText = $answer->answer_text;
+                        if (is_array($answerValue) && isset($answerValue['product_id'])) {
+                            $product = Product::find($answerValue['product_id']);
+                            if ($product) {
+                                $productData = [
+                                    'id' => $product->id,
+                                    'name' => $product->name,
+                                    'price' => (float) $product->price,
+                                    'image_url' => $product->image_url ?? null,
+                                ];
+                                $displayText = $product->name;
+                            }
+                        }
+
+                        return [
+                            'question' => $answer->question->question_text,
+                            'answer_text' => $displayText,
+                            'answer_value' => $answerValue,
+                            'product' => $productData,
+                        ];
+                    }),
+                ];
+            });
+
+        return inertia('distributor/surveys/responses', [
+            'survey' => [
+                'id' => $survey->id,
+                'title' => $survey->title,
+                'description' => $survey->description,
+                'status' => $survey->status,
+                'is_active' => $survey->isActive(),
+                'start_date' => $survey->start_date?->format('Y-m-d'),
+                'expiry_date' => $survey->expiry_date?->format('Y-m-d'),
+                'questions' => $survey->questions->map(function ($q) {
+                    return [
+                        'id' => $q->id,
+                        'question_text' => $q->question_text,
+                        'question_type' => $q->question_type,
+                        'order' => $q->order,
+                        'is_required' => $q->is_required,
+                    ];
+                })->values()->all(),
+                'created_at' => $survey->created_at->format('Y-m-d H:i'),
+            ],
+            'responses' => $responses,
+        ]);
+    }
+
+    /**
      * Show the form for editing the specified survey.
      */
     public function edit(Survey $survey)

@@ -47,11 +47,10 @@ class InvoiceController extends Controller
                  ];
              });
 
-         $stats = [
-             'total_invoices' => (int) Invoice::where('user_id', Auth::id())->count(),
-             'total_spent' => (float) Invoice::where('user_id', Auth::id())->sum('total_amount'),
-             'paid_invoices' => (int) Invoice::where('user_id', Auth::id())->where('payment_status', 'paid')->count(),
-         ];
+        $stats = [
+            'total_invoices' => (int) Invoice::where('user_id', Auth::id())->count(),
+            'total_spent' => (float) Invoice::where('user_id', Auth::id())->sum('total_amount'),
+        ];
 
          return Inertia::render('InvoiceArchive', [
              'invoices' => $invoices,

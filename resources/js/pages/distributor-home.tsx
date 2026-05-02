@@ -10,7 +10,18 @@ import {
     PackageSearch,
     Users,
     Bell,
+    FileText,
 } from 'lucide-react';
+
+interface Props {
+    name: string;
+    companyName: string;
+    stats: {
+        pending_orders: number;
+        total_retailers: number;
+        in_transit: number;
+    };
+}
 
 const distributorSections = [
     {
@@ -28,11 +39,11 @@ const distributorSections = [
         isComingSoon: false,
     },
     {
-        area: 'Delivery Tracking',
-        icon: Truck,
-        href: '/distributor/delivery',
-        description: 'Track shipments',
-        isComingSoon: true,
+        area: 'Survey Responses',
+        icon: FileText,
+        href: '/distributor/surveys',
+        description: 'View retailer responses',
+        isComingSoon: false,
     },
     {
         area: 'Order Statistics',
@@ -181,7 +192,7 @@ export default function DistributorHome({ name, companyName, stats }: Props) {
                                         </p>
                                         <div className="mt-1 translate-y-4 transform opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                                             <span className="flex items-center gap-0.5 text-[8px] text-muted-foreground">
-                                                Click
+                                                Click to view
                                                 <svg
                                                     className="h-2 w-2"
                                                     fill="none"

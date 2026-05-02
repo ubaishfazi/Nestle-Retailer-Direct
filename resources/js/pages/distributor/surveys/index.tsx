@@ -159,7 +159,7 @@ export default function DistributorSurveysIndex({ surveys }: Props) {
                                             <td className="px-2 py-4 text-right">
                                                 <div className="flex items-center justify-end gap-2">
                                                     <Link
-                                                        href={`/distributor/surveys/${survey.id}`}
+                                                        href={`/distributor/surveys/${survey.id}/responses`}
                                                         className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-blue-50 hover:text-[#00447C]"
                                                         title="View Responses"
                                                     >

@@ -83,6 +83,7 @@ Route::middleware(['auth', 'verified', 'distributor'])->group(function () {
 // Distributor survey routes (read-only)
 Route::middleware(['auth', 'verified', 'distributor'])->group(function () {
     Route::get('/distributor/surveys', [SurveyController::class, 'index'])->name('distributor.surveys.index');
+    Route::get('/distributor/surveys/{survey}/responses', [SurveyController::class, 'distributorResponses'])->name('distributor.surveys.responses');
     Route::get('/distributor/surveys/{survey}', [SurveyController::class, 'show'])->name('distributor.surveys.show');
     Route::get('/api/distributor/surveys/stats', [SurveyController::class, 'stats'])->name('api.distributor.surveys.stats');
 });

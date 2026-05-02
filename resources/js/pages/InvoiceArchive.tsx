@@ -2,15 +2,12 @@ import { Head, usePage } from '@inertiajs/react';
 import {
     Package,
     Calendar,
-    DollarSign,
     ChevronRight,
     Download,
     Eye,
-    CheckCircle,
     ChevronDown,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
 interface OrderItem {
@@ -25,31 +22,22 @@ interface Invoice {
     invoice_date: string;
     total_amount: number;
     discount_amount: number;
-    payment_status: string;
     status: string;
     distributor_name: string;
     items: OrderItem[];
 }
 
-function getPaymentStatusBadgeClass(status: string): string {
-    switch (status) {
-        case 'paid':
-            return 'bg-emerald-500 text-white';
-        case 'pending':
-            return 'bg-amber-500 text-white';
-        case 'refunded':
-            return 'bg-blue-500 text-white';
-        case 'failed':
-            return 'bg-red-500 text-white';
-        default:
-            return 'bg-gray-500 text-white';
-    }
+interface Props {
+    invoices: Invoice[];
+    stats: {
+        total_invoices: number;
+        total_spent: number;
+    };
 }
 
 export default function InvoiceArchive({ invoices, stats }: Props) {
     const { toast } = useToast();
     const { flash } = usePage<{ flash?: { success?: string } }>().props;
-    const [filter, setFilter] = useState('all');
     const [expandedInvoiceId, setExpandedInvoiceId] = useState<number | null>(
         null,
     );
@@ -63,11 +51,6 @@ export default function InvoiceArchive({ invoices, stats }: Props) {
             });
         }
     }, [flash?.success, toast]);
-
-    const filteredInvoices =
-        filter === 'all'
-            ? invoices
-            : invoices.filter((i) => i.payment_status === filter);
 
     const downloadInvoice = (invoiceNumber: string) => {
         window.open(`/invoices/${invoiceNumber}/download`, '_blank');
@@ -133,7 +116,7 @@ export default function InvoiceArchive({ invoices, stats }: Props) {
                 {/* Content */}
                 <main className="relative border-x border-slate-200/50 bg-white/60 px-4 py-6 pb-48 backdrop-blur-sm md:px-6 md:py-8 md:pb-40">
                     {/* Stats Cards */}
-                    <div className="mb-6 grid grid-cols-2 gap-3 md:mb-8 md:grid-cols-4 md:gap-4">
+                    <div className="mb-6 grid grid-cols-2 gap-3 md:mb-8 md:gap-4">
                         <div className="group relative">
                             <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 opacity-20 blur-lg transition-opacity group-hover:opacity-30 md:rounded-2xl"></div>
                             <div className="relative rounded-xl border border-slate-200/50 bg-white p-3 shadow-sm transition-shadow hover:shadow-md md:rounded-2xl md:p-5">
@@ -152,63 +135,27 @@ export default function InvoiceArchive({ invoices, stats }: Props) {
                         </div>
 
                         <div className="group relative">
-                            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 opacity-20 blur-lg transition-opacity group-hover:opacity-30 md:rounded-2xl"></div>
-                            <div className="relative rounded-xl border border-slate-200/50 bg-white p-3 shadow-sm transition-shadow hover:shadow-md md:rounded-2xl md:p-5">
-                                <div className="mb-2 flex items-center justify-between md:mb-3">
-                                    <span className="text-[10px] font-semibold tracking-wide text-slate-500 uppercase md:text-xs">
-                                        Paid
-                                    </span>
-                                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 md:h-9 md:w-9">
-                                        <CheckCircle className="h-3.5 w-3.5 text-white md:h-4 md:w-4" />
-                                    </div>
-                                </div>
-                                <div className="bg-gradient-to-br from-emerald-600 to-emerald-500 bg-clip-text text-2xl font-bold text-transparent md:text-3xl">
-                                    {stats.paid_invoices}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="group relative">
-                            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 opacity-20 blur-lg transition-opacity group-hover:opacity-30 md:rounded-2xl"></div>
-                            <div className="relative rounded-xl border border-slate-200/50 bg-white p-3 shadow-sm transition-shadow hover:shadow-md md:rounded-2xl md:p-5">
-                                <div className="mb-2 flex items-center justify-between md:mb-3">
-                                    <span className="text-[10px] font-semibold tracking-wide text-slate-500 uppercase md:text-xs">
-                                        Total Spent
-                                    </span>
-                                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 md:h-9 md:w-9">
-                                        <DollarSign className="h-3.5 w-3.5 text-white md:h-4 md:w-4" />
-                                    </div>
-                                </div>
-                                <div className="bg-gradient-to-br from-slate-900 to-slate-600 bg-clip-text text-2xl font-bold text-transparent md:text-3xl">
-                                    LKR {stats.total_spent.toFixed(2)}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="group relative">
                             <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 opacity-20 blur-lg transition-opacity group-hover:opacity-30 md:rounded-2xl"></div>
                             <div className="relative rounded-xl border border-slate-200/50 bg-white p-3 shadow-sm transition-shadow hover:shadow-md md:rounded-2xl md:p-5">
                                 <div className="mb-2 flex items-center justify-between md:mb-3">
                                     <span className="text-[10px] font-semibold tracking-wide text-slate-500 uppercase md:text-xs">
-                                        Avg/Invoice
+                                        Total Invoice Value
                                     </span>
                                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 md:h-9 md:w-9">
                                         <Package className="h-3.5 w-3.5 text-white md:h-4 md:w-4" />
                                     </div>
                                 </div>
                                 <div className="bg-gradient-to-br from-amber-600 to-amber-500 bg-clip-text text-2xl font-bold text-transparent md:text-3xl">
-                                    {stats.total_invoices > 0
-                                        ? `LKR ${(stats.total_spent / stats.total_invoices).toFixed(2)}`
-                                        : '-/-'}
+                                    LKR {stats.total_spent.toFixed(2)}
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Invoices List */}
-                    {filteredInvoices.length > 0 ? (
+                    {invoices.length > 0 ? (
                         <div className="space-y-4">
-                            {filteredInvoices.map((invoice, index) => (
+                            {invoices.map((invoice, index) => (
                                 <InvoiceCard
                                     key={invoice.id}
                                     invoice={invoice}
@@ -299,14 +246,6 @@ function InvoiceCard({
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Badge
-                                className={getPaymentStatusBadgeClass(
-                                    invoice.payment_status,
-                                )}
-                                variant="outline"
-                            >
-                                {invoice.payment_status}
-                            </Badge>
                             <ChevronDown
                                 className={`h-5 w-5 text-slate-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
                             />
