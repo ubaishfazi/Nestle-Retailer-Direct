@@ -67,56 +67,69 @@ export default function RetailerSurveyIndex({ surveys }: Props) {
                             </p>
                         </div>
                     ) : (
-                        <div className="space-y-3">
-                            {surveys.map((survey) => (
-                                <Link
-                                    key={survey.id}
-                                    href={`/survey/${survey.id}`}
-                                    className="group flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-[#00447C]/50 hover:bg-[#00447C]/5 hover:shadow-md"
-                                >
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/20">
-                                        <FileText className="h-5 w-5 text-[#00447C]" />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex items-center gap-2">
-                                            <h3 className="text-sm font-semibold text-slate-900 transition-colors group-hover:text-[#00447C]">
-                                                {survey.title}
-                                            </h3>
-                                            {survey.has_responded && (
-                                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-                                                    <CheckCircle className="h-3 w-3" />
-                                                    Completed
-                                                </span>
+                    <div className="space-y-3">
+                            {surveys.map((survey) => {
+                                const CardContent = (
+                                    <div className={`group flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-all ${survey.has_responded ? 'opacity-60 cursor-default' : 'hover:border-[#00447C]/50 hover:bg-[#00447C]/5 hover:shadow-md'}`}>
+                                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 transition-colors ${!survey.has_responded && 'group-hover:bg-primary/20'}`}>
+                                            <FileText className={`h-5 w-5 ${survey.has_responded ? 'text-slate-400' : 'text-[#00447C]'}`} />
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <h3 className={`text-sm font-semibold ${survey.has_responded ? 'text-slate-500' : 'text-slate-900 group-hover:text-[#00447C]'}`}>
+                                                    {survey.title}
+                                                </h3>
+                                                {survey.has_responded && (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                                                        <CheckCircle className="h-3 w-3" />
+                                                        Completed
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {survey.description && (
+                                                <p className="mt-1 line-clamp-2 text-xs text-slate-500">
+                                                    {survey.description}
+                                                </p>
                                             )}
+                                            <div className="mt-2 flex items-center gap-3 text-xs text-slate-400">
+                                                <span>
+                                                    {survey.questions_count} question{survey.questions_count !== 1 ? 's' : ''}
+                                                </span>
+                                            </div>
                                         </div>
-                                        {survey.description && (
-                                            <p className="mt-1 line-clamp-2 text-xs text-slate-500">
-                                                {survey.description}
-                                            </p>
+                                        {!survey.has_responded && (
+                                            <div className="shrink-0">
+                                                <svg
+                                                    className="h-5 w-5 text-slate-300 transition-colors group-hover:text-[#00447C]"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M9 5l7 7-7 7"
+                                                    />
+                                                </svg>
+                                            </div>
                                         )}
-                                        <div className="mt-2 flex items-center gap-3 text-xs text-slate-400">
-                                            <span>
-                                                {survey.questions_count} question{survey.questions_count !== 1 ? 's' : ''}
-                                            </span>
-                                        </div>
                                     </div>
-                                    <div className="shrink-0">
-                                        <svg
-                                            className="h-5 w-5 text-slate-300 transition-colors group-hover:text-[#00447C]"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M9 5l7 7-7 7"
-                                            />
-                                        </svg>
-                                    </div>
-                                </Link>
-                            ))}
+                                );
+
+                                if (survey.has_responded) {
+                                    return <div key={survey.id}>{CardContent}</div>;
+                                }
+
+                                return (
+                                    <Link
+                                        key={survey.id}
+                                        href={`/survey/${survey.id}`}
+                                    >
+                                        {CardContent}
+                                    </Link>
+                                );
+                            })}
                         </div>
                     )}
                 </div>

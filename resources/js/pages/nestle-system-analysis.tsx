@@ -41,6 +41,7 @@ interface ActiveSurvey {
     id: number;
     title: string;
     description: string | null;
+    has_responded: boolean;
     questions: SurveyQuestion[];
 }
 
@@ -321,7 +322,9 @@ export default function NestleSystemAnalysis({
                                             <p className="text-[9px] text-muted-foreground">
                                                 {surveysLoading
                                                     ? 'Loading...'
-                                                    : `${surveys.length} survey${surveys.length !== 1 ? 's' : ''} available`}
+                                                    : surveys.filter(s => s.has_responded).length === surveys.length && surveys.length > 0
+                                                    ? 'All completed'
+                                                    : `${surveys.filter(s => !s.has_responded).length} pending`}
                                             </p>
                                         </div>
                                     </div>
@@ -613,7 +616,9 @@ export default function NestleSystemAnalysis({
                                             <p className="mt-1 text-sm text-muted-foreground">
                                                 {surveysLoading
                                                     ? 'Loading...'
-                                                    : `${surveys.length} survey${surveys.length !== 1 ? 's' : ''} available`}
+                                                    : surveys.filter(s => s.has_responded).length === surveys.length && surveys.length > 0
+                                                    ? 'All completed'
+                                                    : `${surveys.filter(s => !s.has_responded).length} pending`}
                                             </p>
                                         </div>
                                     </div>

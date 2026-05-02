@@ -427,6 +427,8 @@ class SurveyController extends Controller
      */
     public function active()
     {
+        $retailerId = Auth::id();
+
         $activeSurveys = Survey::where('status', 'active')
             ->where(function ($query) {
                 $query->whereNull('start_date')
@@ -440,11 +442,12 @@ class SurveyController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(3)
             ->get()
-            ->map(function ($survey) {
+            ->map(function ($survey) use ($retailerId) {
                 return [
                     'id' => $survey->id,
                     'title' => $survey->title,
                     'description' => $survey->description,
+                    'has_responded' => $survey->hasResponded($retailerId),
                     'questions' => $survey->questions->map(function ($q) {
                         return [
                             'id' => $q->id,
@@ -773,6 +776,11 @@ class SurveyController extends Controller
 
         $retailerId = Auth::id();
 
+        // Redirect if retailer has already responded
+        if ($survey->hasResponded($retailerId)) {
+            return redirect()->route('home')->with('error', 'You have already responded to this survey.');
+        }
+
 
         $survey->load(['questions' => function ($query) {
             $query->orderBy('order', 'asc');
@@ -830,6 +838,14 @@ class SurveyController extends Controller
         }
 
         $retailerId = Auth::id();
+
+        // Check if retailer has already responded to this survey
+        if ($survey->hasResponded($retailerId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have already submitted a response to this survey.',
+            ], 422);
+        }
 
         $validator = Validator::make($request->all(), [
             'answers' => 'required|array',
