@@ -25,6 +25,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'loyalty_points',
+        'loyalty_tier_id',
         'approval_status',
         'approved_at',
         'approved_by',
@@ -51,6 +53,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'approved_at' => 'datetime',
             'password' => 'hashed',
+            'loyalty_points' => 'integer',
         ];
     }
 
@@ -164,5 +167,99 @@ class User extends Authenticatable
     public function approvedBy()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Get the loyalty tier for this user.
+     */
+    public function loyaltyTier()
+    {
+        return $this->belongsTo(LoyaltyTier::class);
+    }
+
+    /**
+     * Check if user has a loyalty tier.
+     */
+    public function hasLoyaltyTier(): bool
+    {
+        return $this->loyalty_tier_id !== null && $this->loyaltyTier !== null;
+    }
+
+    /**
+     * Get the loyalty discount percentage for display.
+     */
+    public function getLoyaltyDiscountDisplay(): ?string
+    {
+        if (! $this->hasLoyaltyTier()) {
+            return null;
+        }
+
+        $tier = $this->loyaltyTier;
+        
+        if ($tier->discount_type === 'percentage') {
+            return "{$tier->discount_value}%";
+        }
+
+        return "LKR " . number_format($tier->discount_value, 2);
+    }
+
+    /**
+     * Add loyalty points to this user.
+     */
+    public function addLoyaltyPoints(int $points): void
+    {
+        $this->increment('loyalty_points', $points);
+        $this->updateLoyaltyTier();
+    }
+
+    /**
+     * Update user's loyalty tier based on current points.
+     */
+    public function updateLoyaltyTier(): void
+    {
+        $newTier = LoyaltyTier::getTierForPoints($this->loyalty_points);
+        
+        if ($newTier && $newTier->id !== $this->loyalty_tier_id) {
+            $this->loyalty_tier_id = $newTier->id;
+            $this->save();
+        }
+    }
+
+    /**
+     * Calculate loyalty points for an order amount.
+     * Default: 1 point per 100 LKR spent.
+     */
+    public static function calculatePointsForOrder(float $orderAmount): int
+    {
+        // 1 point per 100 LKR (can be configured)
+        return (int) floor($orderAmount / 100);
+    }
+
+    /**
+     * Get points needed to reach next tier.
+     */
+    public function pointsToNextTier(): ?int
+    {
+        if (! $this->hasLoyaltyTier()) {
+            $firstTier = LoyaltyTier::active()
+                ->ordered()
+                ->first();
+            
+            return $firstTier ? $firstTier->min_points : null;
+        }
+
+        return $this->loyaltyTier->pointsToNextTier($this->loyalty_points);
+    }
+
+    /**
+     * Get progress percentage to next tier.
+     */
+    public function progressToNextTier(): ?float
+    {
+        if (! $this->hasLoyaltyTier()) {
+            return 0.0;
+        }
+
+        return $this->loyaltyTier->progressToNextTier($this->loyalty_points);
     }
 }

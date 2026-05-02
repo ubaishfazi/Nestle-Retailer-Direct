@@ -41,32 +41,22 @@ class PayPalController extends Controller
             return redirect()->back()->withErrors(['paypal' => 'Invalid order data.']);
         }
 
-        // Calculate total amount
+        // Calculate total amount from items
         $totalAmount = 0;
         foreach ($orderData['items'] as $item) {
             $totalAmount += $item['quantity'] * $item['price'];
         }
 
-        // Apply promotion discount if promo code is provided
-        $promotion = null;
-        $discountAmount = 0;
-        $promotionId = null;
+        // Use discount data computed by OrderController
+        $discountAmount = $orderData['discount_amount'] ?? 0;
+        $promotionId = $orderData['promotion_id'] ?? null;
+        $loyaltyDiscountAmount = $orderData['loyalty_discount_amount'] ?? 0;
+        $usedLoyaltyDiscount = $orderData['used_loyalty_discount'] ?? false;
         $promoCode = $orderData['promo_code'] ?? null;
 
-        if ($promoCode) {
-            $promotion = Promotion::where('promo_code', strtoupper($promoCode))->first();
-
-            if ($promotion && $promotion->isValid()) {
-                $productIds = array_filter(array_column($orderData['items'], 'product_id'));
-                $discountAmount = $promotion->calculateDiscount($totalAmount, $productIds);
-
-                if ($discountAmount > 0) {
-                    $promotionId = $promotion->id;
-                    $totalAmount -= $discountAmount;
-                    $totalAmount = max(0, $totalAmount);
-                }
-            }
-        }
+        // Subtract the discount from total
+        $totalAmount -= $discountAmount;
+        $totalAmount = max(0, $totalAmount);
 
         // Store order data in session for later creation after payment success
         session([
@@ -77,6 +67,8 @@ class PayPalController extends Controller
                 'total_amount' => $totalAmount,
                 'promotion_id' => $promotionId,
                 'discount_amount' => $discountAmount,
+                'loyalty_discount_amount' => $loyaltyDiscountAmount,
+                'used_loyalty_discount' => $usedLoyaltyDiscount,
                 'promo_code' => $promoCode,
             ],
         ]);
@@ -107,7 +99,7 @@ class PayPalController extends Controller
                                 ],
                             ],
                             'description' => 'Quick Reorder Order',
-                            'items' => collect($validated['items'])->map(function ($item) {
+                             'items' => collect($orderData['items'])->map(function ($item) {
                                 return [
                                     'name' => $item['product_name'],
                                     'quantity' => (string) $item['quantity'],
@@ -180,6 +172,8 @@ class PayPalController extends Controller
                 'paypal_transaction_id' => 'MOCK-'.strtoupper(uniqid()),
                 'promotion_id' => $orderData['promotion_id'] ?? null,
                 'discount_amount' => $orderData['discount_amount'] ?? 0,
+                'loyalty_discount_amount' => $orderData['loyalty_discount_amount'] ?? 0,
+                'used_loyalty_discount' => $orderData['used_loyalty_discount'] ?? false,
                 'promo_code' => $orderData['promo_code'] ?? null,
             ]);
 
@@ -232,6 +226,8 @@ class PayPalController extends Controller
                     'paypal_transaction_id' => $response['id'] ?? null,
                     'promotion_id' => $orderData['promotion_id'] ?? null,
                     'discount_amount' => $orderData['discount_amount'] ?? 0,
+                    'loyalty_discount_amount' => $orderData['loyalty_discount_amount'] ?? 0,
+                    'used_loyalty_discount' => $orderData['used_loyalty_discount'] ?? false,
                     'promo_code' => $orderData['promo_code'] ?? null,
                 ]);
 

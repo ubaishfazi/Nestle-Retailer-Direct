@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\RetailerInventory;
 use App\Models\User;
+use App\Services\LoyaltyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -58,9 +59,16 @@ class QuickReorderController extends Controller
             ];
         })->values();
 
+        $loyalty = null;
+        if (auth()->check()) {
+            $loyaltyService = new LoyaltyService();
+            $loyalty = $loyaltyService->getLoyaltyStatus(auth()->user());
+        }
+
         return inertia('quick-reorder', [
             'products' => $products,
             'distributors' => $distributors,
+            'loyalty' => $loyalty,
         ]);
     }
 

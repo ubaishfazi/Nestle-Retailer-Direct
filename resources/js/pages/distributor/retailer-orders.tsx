@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { Package, Clock, CheckCircle, XCircle, User } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, User, FileText } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,8 @@ interface Order {
     total_amount: number;
     created_at: string;
     created_date: string;
+    has_invoice: boolean;
+    invoice_number: string | null;
     user: OrderUser;
     items: OrderItem[];
 }
@@ -109,6 +111,29 @@ export default function RetailerOrders({ orders, stats }: Props) {
                     toast({
                         title: 'Failed to reject',
                         description: 'There was an error rejecting the order.',
+                        variant: 'destructive',
+                    });
+                },
+            },
+        );
+    };
+
+    const handleGenerateInvoice = (orderId: number) => {
+        router.post(
+            `/distributor/retailer-orders/${orderId}/invoice`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast({
+                        title: 'Invoice generated!',
+                        description: 'The invoice has been generated successfully.',
+                    });
+                },
+                onError: () => {
+                    toast({
+                        title: 'Failed to generate',
+                        description: 'There was an error generating the invoice.',
                         variant: 'destructive',
                     });
                 },
@@ -247,7 +272,7 @@ export default function RetailerOrders({ orders, stats }: Props) {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-4">
                                                 <Badge
                                                     className={getStatusBadgeClass(
                                                         order.status,
@@ -258,6 +283,43 @@ export default function RetailerOrders({ orders, stats }: Props) {
                                                         .toUpperCase() +
                                                         order.status.slice(1)}
                                                 </Badge>
+                                                {order.has_invoice && order.invoice_number && (
+                                                    <a
+                                                        href={`/invoices/${order.invoice_number!}/view`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-medium text-amber-600 hover:bg-amber-100"
+                                                        title="View Invoice"
+                                                    >
+                                                        <svg
+                                                            className="h-3 w-3"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                            />
+                                                        </svg>
+                                                        Invoice
+                                                    </a>
+                                                )}
+                                                {order.status === 'approved' && !order.has_invoice && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() =>
+                                                            handleGenerateInvoice(order.id)
+                                                        }
+                                                        className="border-amber-200 text-amber-600 hover:bg-amber-50"
+                                                    >
+                                                        <FileText className="mr-1 h-3 w-3" />
+                                                        Generate Invoice
+                                                    </Button>
+                                                )}
                                                 <div className="text-right">
                                                     <div className="font-semibold">
                                                         LKR{' '}

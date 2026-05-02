@@ -31,6 +31,8 @@ interface Order {
     created_at: string;
     created_date: string;
     distributor_name: string;
+    has_invoice: boolean;
+    invoice_number: string | null;
     items: OrderItem[];
 }
 

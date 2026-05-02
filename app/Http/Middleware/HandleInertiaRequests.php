@@ -35,6 +35,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        
+        // Share loyalty data for retailers
+        $loyaltyData = null;
+        if ($user && $user->isRetailer()) {
+            $loyaltyService = new \App\Services\LoyaltyService();
+            $loyaltyData = $loyaltyService->getLoyaltyStatus($user);
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -45,12 +54,13 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
             ],
             'auth' => [
-                'user' => $request->user(),
-                'role' => $request->user()?->role ?? null,
-                'isAdmin' => $request->user()?->isAdmin() ?? false,
-                'isDistributor' => $request->user()?->isDistributor() ?? false,
-                'isRetailer' => $request->user()?->isRetailer() ?? false,
+                'user' => $user,
+                'role' => $user?->role ?? null,
+                'isAdmin' => $user?->isAdmin() ?? false,
+                'isDistributor' => $user?->isDistributor() ?? false,
+                'isRetailer' => $user?->isRetailer() ?? false,
             ],
+            'loyalty' => $loyaltyData,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

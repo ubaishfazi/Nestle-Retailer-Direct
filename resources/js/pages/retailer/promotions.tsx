@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
 import ActivePromotions from '@/components/active-promotions';
-import { ChevronRight, Package } from 'lucide-react';
+import LoyaltyStatus from '@/components/loyalty-status';
+import { ChevronRight, Package, Gift } from 'lucide-react';
 
 export default function RetailerPromotions() {
     return (
@@ -24,7 +25,6 @@ export default function RetailerPromotions() {
                             <div className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5">
                                 <Package className="h-3.5 w-3.5 text-blue-600" />
                                 <span className="text-sm font-semibold whitespace-nowrap text-blue-700">
-                                    {' '}
                                     Promotions
                                 </span>
                             </div>
@@ -33,11 +33,29 @@ export default function RetailerPromotions() {
                 </div>
             </header>
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-                <Head title="Promotions" />
+                <Head title="Promotions & Rewards" />
 
                 <main className="mx-auto max-w-6xl px-4 py-8">
-                    <h1 className="mb-4 text-2xl font-bold">Promotions</h1>
-                    <ActivePromotions />
+                    <div className="mb-6 flex items-center gap-2">
+                        <Gift className="h-6 w-6 text-amber-500" />
+                        <h1 className="text-2xl font-bold">Promotions & Rewards</h1>
+                    </div>
+
+                    {/* Loyalty Status Section */}
+                    <div className="mb-8">
+                        <h2 className="mb-4 text-lg font-semibold text-slate-700">
+                            Your Loyalty Status
+                        </h2>
+                        <LoyaltyStatus />
+                    </div>
+
+                    {/* Active Promotions Section */}
+                    <div>
+                        <h2 className="mb-4 text-lg font-semibold text-slate-700">
+                            Active Promotions
+                        </h2>
+                        <ActivePromotions />
+                    </div>
                 </main>
             </div>
         </>

@@ -11,6 +11,7 @@ import {
     Trash2,
     Checkbox,
     ArrowLeft,
+    FileText,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,9 @@ interface Order {
     status: string;
     total_amount: number;
     created_at: string;
+    created_date: string;
+    has_invoice: boolean;
+    invoice_number: string | null;
     user: OrderUser;
     items: OrderItem[];
 }
@@ -119,6 +123,29 @@ export default function IncomingOrders({ orders, stats }: Props) {
                     toast({
                         title: 'Failed to reject',
                         description: 'There was an error rejecting the order.',
+                        variant: 'destructive',
+                    });
+                },
+            },
+        );
+    };
+
+    const handleGenerateInvoice = (orderId: number) => {
+        router.post(
+            `/distributor/incoming-orders/${orderId}/invoice`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast({
+                        title: 'Invoice generated!',
+                        description: 'The invoice has been created successfully.',
+                    });
+                },
+                onError: () => {
+                    toast({
+                        title: 'Failed to generate invoice',
+                        description: 'There was an error generating the invoice.',
                         variant: 'destructive',
                     });
                 },
@@ -477,6 +504,30 @@ export default function IncomingOrders({ orders, stats }: Props) {
                                                                     1,
                                                                 )}
                                                         </Badge>
+                                                        {order.has_invoice && order.invoice_number && (
+                                                            <a
+                                                                    href={`/invoices/${order.invoice_number!}/view`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1 rounded border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-medium text-amber-600 hover:bg-amber-100"
+                                                                title="View Invoice"
+                                                            >
+                                                                <svg
+                                                                    className="h-3 w-3"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth={2}
+                                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                                    />
+                                                                </svg>
+                                                                Invoice
+                                                            </a>
+                                                        )}
                                                     </div>
 
                                                     {/* Order Items */}
@@ -852,6 +903,34 @@ export default function IncomingOrders({ orders, stats }: Props) {
                                                                     1,
                                                                 )}
                                                         </Badge>
+                                                        {order.has_invoice && order.invoice_number ? (
+                                                            <a
+                                                                href={`/invoices/${order.invoice_number!}/view`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100"
+                                                                title="View Invoice"
+                                                            >
+                                                                <FileText className="h-3 w-3" />
+                                                                Invoice
+                                                            </a>
+                                                        ) : order.status === 'approved' ? (
+                                                            <Button
+                                                                onClick={() =>
+                                                                    handleGenerateInvoice(
+                                                                        order.id,
+                                                                    )
+                                                                }
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="h-7 border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                                                            >
+                                                                <FileText className="h-3 w-3" />
+                                                                <span className="ml-1">
+                                                                    Generate
+                                                                </span>
+                                                            </Button>
+                                                        ) : null}
                                                         <div className="text-right">
                                                             <div className="text-sm font-bold text-slate-900">
                                                                 LKR{' '}

@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ChevronLeft,
     Plus,
@@ -153,6 +153,7 @@ interface Props {
 
 export default function QuickReorder({ products, distributors }: Props) {
     const { toast } = useToast();
+    const { loyalty: initialLoyalty } = usePage().props;
 
     // Safe array conversion
     const safeProducts = Array.isArray(products) ? products : [];
@@ -207,6 +208,16 @@ export default function QuickReorder({ products, distributors }: Props) {
     } | null>(null);
     const [promoError, setPromoError] = useState<string | null>(null);
     const [validatingPromo, setValidatingPromo] = useState(false);
+
+    // Loyalty discount state
+    const [loyaltyDiscount, setLoyaltyDiscount] = useState<{
+        hasDiscount: boolean;
+        discountType: string;
+        discountValue: number;
+        discountAmount: number;
+        tierName: string;
+        tierColor: string;
+    } | null>(null);
 
     // Credit card form state
     const [cardNumber, setCardNumber] = useState('');
@@ -696,9 +707,89 @@ export default function QuickReorder({ products, distributors }: Props) {
             0,
         );
 
-    // Calculate discounted total
-    const discountAmount = appliedPromo ? appliedPromo.discount_amount : 0;
-    const discountedTotal = totalAmount - discountAmount;
+    // Calculate best discount (loyalty or promo)
+    const promoDiscountAmount = appliedPromo ? appliedPromo.discount_amount : 0;
+    const loyaltyDiscountAmount = loyaltyDiscount ? loyaltyDiscount.discountAmount : 0;
+
+    // Use the better discount
+    const bestDiscountAmount = Math.max(promoDiscountAmount, loyaltyDiscountAmount);
+    const discountedTotal = totalAmount - bestDiscountAmount;
+
+    // Determine which discount is applied (the best one) for display
+    const appliedDiscountElement = (() => {
+        const epsilon = 0.01;
+        const hasPromo = appliedPromo && promoDiscountAmount > epsilon;
+        const hasLoyalty = loyaltyDiscount && loyaltyDiscount.hasDiscount && loyaltyDiscountAmount > epsilon;
+
+        if (!hasPromo && !hasLoyalty) return null;
+
+        if (hasPromo && Math.abs(bestDiscountAmount - promoDiscountAmount) < epsilon) {
+            return (
+                <div className="mb-2 flex items-center justify-between text-emerald-600">
+                    <span className="text-xs md:text-sm">
+                        Discount ({appliedPromo.discount_type === 'percentage' ? `${appliedPromo.discount_value}%` : `LKR ${appliedPromo.discount_value.toFixed(2)}`})
+                    </span>
+                    <span className="text-sm font-semibold md:text-base">
+                        - LKR {promoDiscountAmount.toFixed(2)}
+                    </span>
+                </div>
+            );
+        }
+        if (hasLoyalty && Math.abs(bestDiscountAmount - loyaltyDiscountAmount) < epsilon) {
+            return (
+                <div className="mb-2 flex items-center justify-between text-emerald-600">
+                    <span className="text-xs md:text-sm">
+                        Loyalty Discount ({loyaltyDiscount.tierName} - {loyaltyDiscount.discountValue}%)
+                    </span>
+                    <span className="text-sm font-semibold md:text-base">
+                        - LKR {loyaltyDiscountAmount.toFixed(2)}
+                    </span>
+                </div>
+            );
+        }
+        return null;
+    })();
+
+    // Fetch loyalty discount when totalAmount changes
+    useEffect(() => {
+        if (totalAmount > 0) {
+            fetch('/api/loyalty/calculate-discount', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({
+                    cart_total: totalAmount,
+                }),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.use_loyalty_discount && data.loyalty_discount > 0) {
+                        // Use the initial loyalty data from page props
+                        const loyaltyData = initialLoyalty;
+                        setLoyaltyDiscount({
+                            hasDiscount: true,
+                            discountType: loyaltyData?.tier?.discount_type || 'percentage',
+                            discountValue: loyaltyData?.tier?.discount_value || 0,
+                            discountAmount: data.loyalty_discount,
+                            tierName: loyaltyData?.tier?.name || '',
+                            tierColor: loyaltyData?.tier?.color || '#FFD700',
+                        });
+                    } else {
+                        setLoyaltyDiscount(null);
+                    }
+                })
+                .catch(() => {
+                    setLoyaltyDiscount(null);
+                });
+        } else {
+            setLoyaltyDiscount(null);
+        }
+    }, [totalAmount, initialLoyalty]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#e8ecf1]">
@@ -781,11 +872,10 @@ export default function QuickReorder({ products, distributors }: Props) {
                                             Distributors
                                         </h2>
                                     </div>
-                                    <DropdownMenu
-                                        open={isDistributorOpen}
-                                        onOpenChange={setIsDistributorOpen}
-                                        disabled={!selectedCity}
-                                    >
+                                <DropdownMenu
+                                    open={isDistributorOpen}
+                                    onOpenChange={setIsDistributorOpen}
+                                >
                                         <DropdownMenuTrigger asChild>
                                             <Button
                                                 variant="outline"
@@ -1012,21 +1102,7 @@ export default function QuickReorder({ products, distributors }: Props) {
                                         LKR {totalAmount.toFixed(2)}
                                     </span>
                                 </div>
-                                {appliedPromo && (
-                                    <div className="mb-2 flex items-center justify-between text-emerald-600">
-                                        <span className="text-xs md:text-sm">
-                                            Discount (
-                                            {appliedPromo.discount_type ===
-                                            'percentage'
-                                                ? `${appliedPromo.discount_value}%`
-                                                : `LKR ${appliedPromo.discount_value.toFixed(2)}`}
-                                            )
-                                        </span>
-                                        <span className="text-sm font-semibold md:text-base">
-                                            - LKR {discountAmount.toFixed(2)}
-                                        </span>
-                                    </div>
-                                )}
+                                {appliedDiscountElement}
                                 <div className="flex items-center justify-between border-t pt-2">
                                     <span className="text-sm font-semibold md:text-base">
                                         Total Amount
@@ -1236,21 +1312,7 @@ export default function QuickReorder({ products, distributors }: Props) {
                                         LKR {totalAmount.toFixed(2)}
                                     </span>
                                 </div>
-                                {appliedPromo && (
-                                    <div className="mb-2 flex items-center justify-between text-emerald-600">
-                                        <span className="text-xs md:text-sm">
-                                            Discount (
-                                            {appliedPromo.discount_type ===
-                                            'percentage'
-                                                ? `${appliedPromo.discount_value}%`
-                                                : `LKR ${appliedPromo.discount_value.toFixed(2)}`}
-                                            )
-                                        </span>
-                                        <span className="text-sm font-semibold md:text-base">
-                                            - LKR {discountAmount.toFixed(2)}
-                                        </span>
-                                    </div>
-                                )}
+                                {appliedDiscountElement}
                                 <div className="flex items-center justify-between border-t pt-2">
                                     <span className="text-sm font-semibold md:text-base">
                                         Total Amount
@@ -1372,7 +1434,7 @@ export default function QuickReorder({ products, distributors }: Props) {
                             >
                                 {isSubmitting
                                     ? 'Processing...'
-                                    : `Pay LKR ${totalAmount.toFixed(2)}`}
+                                    : `Pay LKR ${discountedTotal.toFixed(2)}`}
                             </button>
                         </div>
                     </div>
@@ -1387,8 +1449,7 @@ export default function QuickReorder({ products, distributors }: Props) {
                         disabled={isSubmitting || totalItems === 0}
                         className="mx-auto block w-full max-w-xs rounded-xl bg-white px-6 py-3 font-bold text-[#00447C] hover:bg-gray-100 disabled:opacity-50"
                     >
-                        REORDER NOW ({totalItems} items) - LKR{' '}
-                        {totalAmount.toFixed(2)}
+                            REORDER NOW ({totalItems} items) - LKR {discountedTotal.toFixed(2)}
                     </button>
                 </div>
             </footer>

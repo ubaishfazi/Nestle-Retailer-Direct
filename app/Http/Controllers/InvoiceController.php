@@ -64,8 +64,9 @@ class InvoiceController extends Controller
      */
     public function download(Invoice $invoice)
     {
-        // Verify user has access to this invoice
-        if ($invoice->user_id !== Auth::id() && ! Auth::user()->isAdmin()) {
+        // Verify user has access (invoice owner, associated distributor, or admin)
+        $user = Auth::user();
+        if ($invoice->user_id !== $user->id && $invoice->distributor_id !== $user->id && ! $user->isAdmin()) {
             abort(403, 'Unauthorized access to invoice.');
         }
 
@@ -77,8 +78,9 @@ class InvoiceController extends Controller
      */
     public function view(Invoice $invoice)
     {
-        // Verify user has access to this invoice
-        if ($invoice->user_id !== Auth::id() && ! Auth::user()->isAdmin()) {
+        // Verify user has access (invoice owner, associated distributor, or admin)
+        $user = Auth::user();
+        if ($invoice->user_id !== $user->id && $invoice->distributor_id !== $user->id && ! $user->isAdmin()) {
             abort(403, 'Unauthorized access to invoice.');
         }
 

@@ -10,6 +10,7 @@ use App\Models\Promotion;
 use App\Models\RetailerInventory;
 use App\Models\User;
 use App\Services\InvoiceService;
+use App\Services\LoyaltyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -86,29 +87,49 @@ class OrderController extends Controller
             $totalAmount += $item['quantity'] * $item['price'];
         }
 
-        // Apply promotion discount if promo code is provided
+        // Calculate best discount (loyalty or promo code)
+        $loyaltyService = new LoyaltyService();
         $promotion = null;
         $discountAmount = 0;
+        $loyaltyDiscountAmount = 0;
+        $usedLoyaltyDiscount = false;
         $promotionId = null;
 
+        // Get promotion if promo code is provided
         if (! empty($validated['promo_code'])) {
             $promotion = Promotion::where('promo_code', strtoupper($validated['promo_code']))->first();
+        }
 
-            if ($promotion && $promotion->isValid()) {
-                $productIds = array_filter(array_column($validated['items'], 'product_id'));
-                $discountAmount = $promotion->calculateDiscount($totalAmount, $productIds);
+        // Calculate best discount using loyalty service
+        $productIds = array_filter(array_column($validated['items'], 'product_id'));
+        $discountResult = $loyaltyService->calculateBestDiscount(
+            Auth::user(),
+            $totalAmount,
+            $promotion,
+            $productIds
+        );
 
-                if ($discountAmount > 0) {
-                    $promotionId = $promotion->id;
-                    $totalAmount -= $discountAmount;
-                    $totalAmount = max(0, $totalAmount); // Ensure total doesn't go negative
+        $discountAmount = $discountResult['discount_amount'];
+        $loyaltyDiscountAmount = $discountResult['use_loyalty_discount'] ? $discountResult['loyalty_discount'] : 0;
+        $usedLoyaltyDiscount = $discountResult['use_loyalty_discount'];
 
-                    \Log::info('Promotion applied:', [
-                        'promo_code' => $promotion->promo_code,
-                        'discount_amount' => $discountAmount,
-                        'new_total' => $totalAmount,
-                    ]);
-                }
+        if ($discountAmount > 0) {
+            $totalAmount -= $discountAmount;
+            $totalAmount = max(0, $totalAmount); // Ensure total doesn't go negative
+
+            if ($usedLoyaltyDiscount) {
+                $promotionId = null; // No promo code used
+                \Log::info('Loyalty discount applied:', [
+                    'discount_amount' => $loyaltyDiscountAmount,
+                    'new_total' => $totalAmount,
+                ]);
+            } elseif ($promotion) {
+                $promotionId = $promotion->id;
+                \Log::info('Promotion applied:', [
+                    'promo_code' => $promotion->promo_code,
+                    'discount_amount' => $discountAmount,
+                    'new_total' => $totalAmount,
+                ]);
             }
         }
 
@@ -124,6 +145,8 @@ class OrderController extends Controller
                     'items' => $validated['items'],
                     'promotion_id' => $promotionId,
                     'discount_amount' => $discountAmount,
+                    'loyalty_discount_amount' => $loyaltyDiscountAmount,
+                    'used_loyalty_discount' => $usedLoyaltyDiscount,
                     'promo_code' => $validated['promo_code'] ?? null,
                 ],
             ]);
@@ -140,6 +163,8 @@ class OrderController extends Controller
                 'payment_status' => 'paid',
                 'promotion_id' => $promotionId,
                 'discount_amount' => $discountAmount,
+                'loyalty_discount_amount' => $loyaltyDiscountAmount,
+                'used_loyalty_discount' => $usedLoyaltyDiscount,
                 'promo_code' => $validated['promo_code'] ?? null,
             ]);
 
@@ -175,6 +200,8 @@ class OrderController extends Controller
             'payment_status' => 'pending',
             'promotion_id' => $promotionId,
             'discount_amount' => $discountAmount,
+            'loyalty_discount_amount' => $loyaltyDiscountAmount,
+            'used_loyalty_discount' => $usedLoyaltyDiscount,
             'promo_code' => $validated['promo_code'] ?? null,
         ]);
 
@@ -288,18 +315,24 @@ class OrderController extends Controller
         }
 
         // Generate invoice automatically after order approval (digital invoice archive)
-        try {
-            $invoice = app(InvoiceService::class)->generateInvoice($order);
-            \Log::info('Invoice generated automatically for order', [
+        if (! $order->invoice) {
+            try {
+                $invoice = app(InvoiceService::class)->generateInvoice($order);
+                \Log::info('Invoice generated automatically for order', [
+                    'order_id' => $order->id,
+                    'invoice_number' => $invoice->invoice_number,
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Failed to generate invoice for order', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+                // Don't fail the approval if invoice generation fails
+            }
+        } else {
+            \Log::info('Invoice already exists for order, skipping generation', [
                 'order_id' => $order->id,
-                'invoice_number' => $invoice->invoice_number,
             ]);
-        } catch (\Exception $e) {
-            \Log::error('Failed to generate invoice for order', [
-                'order_id' => $order->id,
-                'error' => $e->getMessage(),
-            ]);
-            // Don't fail the approval if invoice generation fails
         }
 
         return redirect()->back()->with('success', 'Order approved successfully! Invoice has been generated.');

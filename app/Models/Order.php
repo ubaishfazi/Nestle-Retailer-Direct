@@ -21,6 +21,13 @@ class Order extends Model
         'promotion_id',
         'discount_amount',
         'promo_code',
+        'loyalty_discount_amount',
+        'used_loyalty_discount',
+    ];
+
+    protected $casts = [
+        'loyalty_discount_amount' => 'decimal:2',
+        'used_loyalty_discount' => 'boolean',
     ];
 
     public function user(): BelongsTo

@@ -4,6 +4,7 @@ use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\Dashboard\AccountsController;
 use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\ProductController;
@@ -60,8 +61,10 @@ Route::middleware(['auth', 'verified', 'distributor'])->group(function () {
     Route::post('/distributor/orders/{order}/reject', [DistributorController::class, 'rejectOrder'])->name('distributor.orders.reject');
     Route::post('/distributor/retailer-orders/{order}/approve', [DistributorController::class, 'approveRetailerOrder'])->name('distributor.retailer-orders.approve');
     Route::post('/distributor/retailer-orders/{order}/reject', [DistributorController::class, 'rejectRetailerOrder'])->name('distributor.retailer-orders.reject');
+    Route::post('/distributor/retailer-orders/{order}/invoice', [DistributorController::class, 'generateInvoice'])->name('distributor.retailer-orders.invoice');
     Route::post('/distributor/incoming-orders/{order}/approve', [DistributorController::class, 'approveIncomingOrder'])->name('distributor.incoming-orders.approve');
     Route::post('/distributor/incoming-orders/{order}/reject', [DistributorController::class, 'rejectIncomingOrder'])->name('distributor.incoming-orders.reject');
+    Route::post('/distributor/incoming-orders/{order}/invoice', [DistributorController::class, 'generateInvoice'])->name('distributor.incoming-orders.invoice');
     Route::post('/distributor/incoming-orders/delete-approved', [DistributorController::class, 'deleteApprovedOrders'])->name('distributor.incoming-orders.delete-approved');
     Route::post('/distributor/orders/{order}/status', [DistributorController::class, 'updateOrderStatus'])->name('distributor.orders.status');
     Route::get('/distributor/delivery', [DistributorController::class, 'delivery'])->name('distributor.delivery');
@@ -173,6 +176,17 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 // Promo code validation routes (authenticated users)
 Route::middleware(['auth'])->post('/api/promo-code/validate', [PromotionController::class, 'validatePromoCode'])->name('api.promo-code.validate');
 Route::middleware(['auth'])->get('/api/promotions/active', [PromotionController::class, 'activePromotions'])->name('api.promotions.active');
+
+// Loyalty routes (authenticated users)
+Route::middleware(['auth'])->get('/api/loyalty/status', [LoyaltyController::class, 'status'])->name('api.loyalty.status');
+Route::middleware(['auth'])->post('/api/loyalty/calculate-discount', [LoyaltyController::class, 'calculateDiscount'])->name('api.loyalty.calculate-discount');
+Route::get('/api/loyalty/tiers', [LoyaltyController::class, 'tiers'])->name('api.loyalty.tiers');
+
+// Admin loyalty routes
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+    Route::get('loyalty', [LoyaltyController::class, 'adminIndex'])->name('admin.loyalty.index');
+    Route::get('api/loyalty/stats', [LoyaltyController::class, 'adminStats'])->name('admin.loyalty.stats');
+});
 
 // Survey API routes
 Route::middleware(['auth'])->get('/api/surveys/active', [SurveyController::class, 'active'])->name('api.surveys.active');
