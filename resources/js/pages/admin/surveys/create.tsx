@@ -9,12 +9,7 @@ import type { BreadcrumbItem } from '@/types';
 interface Question {
     id?: number;
     question_text: string;
-    question_type:
-        | 'text'
-        | 'textarea'
-        | 'product_suggestion'
-        | 'product_selection';
-    placeholder: string;
+    question_type: 'product_selection';
     is_required: boolean;
     order: number;
     product_ids?: number[];
@@ -57,8 +52,7 @@ export default function AdminSurveysCreate() {
     const [questions, setQuestions] = useState<Question[]>([
         {
             question_text: '',
-            question_type: 'text',
-            placeholder: '',
+            question_type: 'product_selection',
             is_required: true,
             order: 0,
             product_ids: [],
@@ -68,7 +62,6 @@ export default function AdminSurveysCreate() {
     const [loadingProducts, setLoadingProducts] = useState(false);
 
     const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
     const [status, setStatus] = useState('active');
     const [startDate, setStartDate] = useState('');
     const [expiryDate, setExpiryDate] = useState('');
@@ -83,7 +76,6 @@ export default function AdminSurveysCreate() {
                     const data = await response.json();
                     setAllProducts(data.products || []);
                 } else {
-                    // Fallback: try to get products from the window object if available
                     console.warn('Could not fetch products from API');
                 }
             } catch (error) {
@@ -95,13 +87,28 @@ export default function AdminSurveysCreate() {
         fetchProducts();
     }, []);
 
+    useEffect(() => {
+        if (allProducts.length > 0) {
+            setQuestions((prev) =>
+                prev.map((q) => ({
+                    ...q,
+                    product_ids:
+                        q.question_type === 'product_selection' &&
+                        (!q.product_ids || q.product_ids.length === 0)
+                            ? allProducts.map((p) => p.id)
+                            : q.product_ids,
+                })),
+            );
+        }
+    }, [allProducts]);
+
     const addQuestion = () => {
         const newQuestion: Question = {
             question_text: '',
-            question_type: 'text',
-            placeholder: '',
+            question_type: 'product_selection',
             is_required: true,
             order: questions.length,
+            product_ids: allProducts.map((p) => p.id),
         };
         setQuestions([...questions, newQuestion]);
     };
@@ -158,14 +165,12 @@ export default function AdminSurveysCreate() {
                 },
                 body: JSON.stringify({
                     title,
-                    description,
                     status,
                     start_date: startDate || null,
                     expiry_date: expiryDate || null,
                     questions: questions.map((q, index) => ({
                         question_text: q.question_text,
                         question_type: q.question_type,
-                        placeholder: q.placeholder,
                         is_required: q.is_required,
                         order: index,
                         ...(q.question_type === 'product_selection' && {
@@ -180,7 +185,10 @@ export default function AdminSurveysCreate() {
             } else {
                 const error = await response.json();
                 console.error('Validation errors:', error);
-                alert('Please fix the errors in the form');
+                const messages = error.errors
+                    ? Object.values(error.errors).flat().join('\n')
+                    : error.message || 'Please fix the errors in the form';
+                alert(messages);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -218,21 +226,6 @@ export default function AdminSurveysCreate() {
                                         }
                                         placeholder="e.g., Product Demand Survey"
                                         className="w-full rounded-xl border border-slate-300 bg-white p-3 focus:border-[#00447C] focus:ring-2 focus:ring-[#00447C]"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-slate-900">
-                                        Description (Optional)
-                                    </label>
-                                    <textarea
-                                        value={description}
-                                        onChange={(e) =>
-                                            setDescription(e.target.value)
-                                        }
-                                        placeholder="Brief description of the survey purpose"
-                                        rows={3}
-                                        className="w-full resize-none rounded-xl border border-slate-300 bg-white p-3 focus:border-[#00447C] focus:ring-2 focus:ring-[#00447C]"
                                     />
                                 </div>
 
@@ -337,45 +330,12 @@ export default function AdminSurveysCreate() {
                                                             }
                                                             className="w-full rounded-lg border border-slate-300 bg-white p-3 focus:border-[#00447C] focus:ring-2 focus:ring-[#00447C]"
                                                         >
-                                                            <option value="text">
-                                                                Short Text
-                                                            </option>
-                                                            <option value="textarea">
-                                                                Long Text
-                                                            </option>
-                                                            <option value="product_suggestion">
-                                                                Product
-                                                                Suggestion (Open
-                                                                Text)
-                                                            </option>
                                                             <option value="product_selection">
                                                                 Product
                                                                 Selection (Radio
                                                                 Buttons)
                                                             </option>
                                                         </select>
-                                                    </div>
-                                                    <div>
-                                                        <label className="mb-1 block text-sm font-medium text-slate-900">
-                                                            Placeholder
-                                                            (Optional)
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            value={
-                                                                question.placeholder
-                                                            }
-                                                            onChange={(e) =>
-                                                                updateQuestion(
-                                                                    index,
-                                                                    'placeholder',
-                                                                    e.target
-                                                                        .value,
-                                                                )
-                                                            }
-                                                            placeholder="Placeholder text"
-                                                            className="w-full rounded-lg border border-slate-300 bg-white p-3 focus:border-[#00447C] focus:ring-2 focus:ring-[#00447C]"
-                                                        />
                                                     </div>
                                                 </div>
 

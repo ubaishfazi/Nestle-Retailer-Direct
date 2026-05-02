@@ -305,45 +305,44 @@ export default function NestleSystemAnalysis({
                             </div>
 
                             {/* Mobile Survey Card */}
-                            {!surveysLoading && surveys.length > 0 ? (
-                                <Link
-                                    href={`/survey/${surveys[0].id}`}
-                                    className="group flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-white/50 bg-white/90 p-2 text-center shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:bg-white/10"
-                                >
-                                    <div className="transform transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-110">
-                                        <Clipboard className="mb-1 h-4 w-4 text-primary" />
+                            <Link
+                                href="/retailer/surveys"
+                                className="group flex h-24 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-white/50 bg-white/90 p-2 text-center shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:bg-white/10"
+                            >
+                                <div className="flex items-center gap-1.5">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                                        <Clipboard className="h-4 w-4 text-primary" />
                                     </div>
-                                    <p className="line-clamp-2 text-[10px] font-medium transition-colors duration-300 group-hover:text-primary/80">
-                                        {surveys[0].title}
-                                    </p>
-                                    <div className="mt-1 translate-y-4 transform opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                                        <span className="flex items-center gap-0.5 text-[9px] font-semibold text-primary">
-                                            Take Survey
-                                            <svg
-                                                className="h-2 w-2"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M9 5l7 7-7 7"
-                                                />
-                                            </svg>
-                                        </span>
+                                    <div>
+                                        <p className="text-[10px] font-semibold text-slate-900 dark:text-white">
+                                            Questionnaire
+                                        </p>
+                                        <p className="text-[9px] text-muted-foreground">
+                                            {surveysLoading
+                                                ? 'Loading...'
+                                                : `${surveys.length} survey${surveys.length !== 1 ? 's' : ''} available`}
+                                        </p>
                                     </div>
-                                </Link>
-                            ) : (
-                                <div className="flex h-24 w-full flex-col items-center justify-center rounded-xl border border-white/50 bg-white/90 p-2 text-center opacity-50 shadow-lg backdrop-blur-sm dark:bg-white/10">
-                                    <p className="text-[10px] font-medium text-muted-foreground">
-                                        {surveysLoading
-                                            ? 'Loading...'
-                                            : 'No Active Surveys'}
-                                    </p>
                                 </div>
-                            )}
+                                <div className="mt-1 translate-y-4 transform opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                                    <span className="flex items-center gap-0.5 text-[9px] font-semibold text-primary">
+                                        View Surveys
+                                        <svg
+                                            className="h-2 w-2"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M9 5l7 7-7 7"
+                                            />
+                                        </svg>
+                                    </span>
+                                </div>
+                            </Link>
                         </div>
                     </div>
 
@@ -596,54 +595,44 @@ export default function NestleSystemAnalysis({
                             </Link>
 
                             {/* Demand Sensing Survey Card */}
-                            {surveysLoading ? (
-                                <div className="flex h-56 w-72 flex-col items-center justify-center rounded-3xl border border-white/50 bg-white/90 p-8 text-center shadow-2xl backdrop-blur-sm dark:bg-white/10">
-                                    <p className="text-sm text-muted-foreground">
-                                        Loading survey...
-                                    </p>
-                                </div>
-                            ) : surveys.length > 0 ? (
-                                <Link
-                                    href={`/survey/${surveys[0].id}`}
-                                    className="group flex h-56 w-72 cursor-pointer flex-col items-center justify-center rounded-3xl border border-white/50 bg-white/90 p-8 text-center shadow-2xl backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:bg-white/10"
-                                >
-                                    <div className="transform transition-transform duration-300 group-hover:-translate-y-2 group-hover:scale-110">
-                                        <Clipboard className="mb-4 h-14 w-14 text-primary" />
+                            <Link
+                                href="/retailer/surveys"
+                                className="group flex h-56 w-72 cursor-pointer flex-col items-center justify-center rounded-3xl border border-white/50 bg-white/90 p-8 text-center shadow-2xl backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] dark:bg-white/10"
+                            >
+                                <div className="flex flex-col items-center gap-3">
+                                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 transition-transform duration-300 group-hover:scale-110">
+                                        <Clipboard className="h-8 w-8 text-primary" />
                                     </div>
-                                    <p className="text-xl font-medium transition-colors duration-300 group-hover:text-primary/80">
-                                        {surveys[0].title}
-                                    </p>
-                                    {surveys[0].description && (
-                                        <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
-                                            {surveys[0].description}
+                                    <div className="text-center">
+                                        <p className="text-xl font-semibold text-slate-900 dark:text-white transition-colors duration-300 group-hover:text-primary/80">
+                                            Questionnaire
                                         </p>
-                                    )}
-                                    <div className="mt-4 translate-y-4 transform opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                                        <span className="flex items-center gap-2 text-sm font-semibold text-primary">
-                                            Take Survey
-                                            <svg
-                                                className="h-4 w-4"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth={2}
-                                                    d="M9 5l7 7-7 7"
-                                                />
-                                            </svg>
-                                        </span>
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            {surveysLoading
+                                                ? 'Loading...'
+                                                : `${surveys.length} survey${surveys.length !== 1 ? 's' : ''} available`}
+                                        </p>
                                     </div>
-                                </Link>
-                            ) : (
-                                <div className="flex h-56 w-72 flex-col items-center justify-center rounded-3xl border border-white/50 bg-white/90 p-8 text-center opacity-50 shadow-2xl backdrop-blur-sm dark:bg-white/10">
-                                    <p className="text-xl font-medium text-muted-foreground">
-                                        No Active Surveys
-                                    </p>
                                 </div>
-                            )}
+                                <div className="mt-4 translate-y-4 transform opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                                    <span className="flex items-center gap-2 text-sm font-semibold text-primary">
+                                        View Surveys
+                                        <svg
+                                            className="h-4 w-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M9 5l7 7-7 7"
+                                            />
+                                        </svg>
+                                    </span>
+                                </div>
+                            </Link>
 
                             {/* Second Coming Soon (remain unchanged) */}
                             <div className="flex h-56 w-72 flex-col items-center justify-center rounded-3xl border border-white/50 bg-white/90 p-8 text-center opacity-50 shadow-2xl backdrop-blur-sm dark:bg-white/10">

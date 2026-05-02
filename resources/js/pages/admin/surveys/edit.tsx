@@ -10,11 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 interface Question {
     id: number;
     question_text: string;
-    question_type:
-        | 'text'
-        | 'textarea'
-        | 'product_suggestion'
-        | 'product_selection';
+    question_type: 'product_selection';
     placeholder: string | null;
     is_required: boolean;
     order: number;
@@ -97,15 +93,30 @@ export default function AdminSurveysEdit({ survey }: Props) {
         fetchProducts();
     }, []);
 
+    useEffect(() => {
+        if (allProducts.length > 0) {
+            setQuestions((prev) =>
+                prev.map((q) => ({
+                    ...q,
+                    product_ids:
+                        q.question_type === 'product_selection' &&
+                        (!q.product_ids || q.product_ids.length === 0)
+                            ? allProducts.map((p) => p.id)
+                            : q.product_ids,
+                })),
+            );
+        }
+    }, [allProducts]);
+
     const addQuestion = () => {
         const newQuestion: Question = {
             id: Date.now(),
             question_text: '',
-            question_type: 'text',
+            question_type: 'product_selection',
             placeholder: '',
             is_required: true,
             order: questions.length,
-            product_ids: [],
+            product_ids: allProducts.map((p) => p.id),
         };
         setQuestions([...questions, newQuestion]);
     };
@@ -364,17 +375,6 @@ export default function AdminSurveysEdit({ survey }: Props) {
                                                             }
                                                             className="w-full rounded-lg border border-slate-300 bg-white p-3 focus:border-[#00447C] focus:ring-2 focus:ring-[#00447C]"
                                                         >
-                                                            <option value="text">
-                                                                Short Text
-                                                            </option>
-                                                            <option value="textarea">
-                                                                Long Text
-                                                            </option>
-                                                            <option value="product_suggestion">
-                                                                Product
-                                                                Suggestion (Open
-                                                                Text)
-                                                            </option>
                                                             <option value="product_selection">
                                                                 Product
                                                                 Selection (Radio

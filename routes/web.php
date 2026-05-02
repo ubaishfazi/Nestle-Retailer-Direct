@@ -94,6 +94,7 @@ Route::middleware(['auth', 'verified', 'retailer'])->group(function () {
     Route::get('/retailer/promotions', [PromotionController::class, 'retailerPromotions'])->name('retailer.promotions.index');
 
     // Retailer survey routes
+    Route::get('/retailer/surveys', [SurveyController::class, 'retailerIndex'])->name('retailer.surveys.index');
     Route::get('/survey/{survey}', [SurveyController::class, 'showSurvey'])->name('retailer.survey.show');
     Route::post('/survey/{survey}/submit', [SurveyController::class, 'submitResponse'])->name('retailer.survey.submit');
 

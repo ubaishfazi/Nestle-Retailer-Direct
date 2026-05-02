@@ -18,6 +18,41 @@ use Inertia\Inertia;
 class SurveyController extends Controller
 {
     /**
+     * Display a listing of active surveys for retailers.
+     */
+    public function retailerIndex()
+    {
+        $retailerId = Auth::id();
+
+        $surveys = Survey::where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('start_date')
+                    ->orWhere('start_date', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('expiry_date')
+                    ->orWhere('expiry_date', '>=', now());
+            })
+            ->withCount('questions')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($survey) use ($retailerId) {
+                return [
+                    'id' => $survey->id,
+                    'title' => $survey->title,
+                    'description' => $survey->description,
+                    'questions_count' => $survey->questions_count,
+                    'has_responded' => $survey->hasResponded($retailerId),
+                    'created_at' => $survey->created_at->format('Y-m-d'),
+                ];
+            });
+
+        return inertia('retailer/surveys/index', [
+            'surveys' => $surveys,
+        ]);
+    }
+
+    /**
      * Display a listing of surveys for distributors.
      */
     public function index()
@@ -67,10 +102,12 @@ class SurveyController extends Controller
             'expiry_date' => 'nullable|date|after:start_date',
             'questions' => 'required|array|min:1',
             'questions.*.question_text' => 'required|string',
-            'questions.*.question_type' => 'required|in:text,textarea,product_suggestion,product_selection',
+            'questions.*.question_type' => 'required|in:product_selection',
             'questions.*.placeholder' => 'nullable|string',
             'questions.*.is_required' => 'boolean',
             'questions.*.order' => 'integer',
+            'questions.*.product_ids' => 'nullable|array',
+            'questions.*.product_ids.*' => 'integer|exists:products,id',
         ]);
 
         if ($validator->fails()) {
@@ -571,13 +608,13 @@ class SurveyController extends Controller
                 // IDs may be temporary on frontend for new questions; accept integers instead of strict exists
                 'questions.*.id' => 'nullable|integer',
                 'questions.*.question_text' => 'required|string',
-                'questions.*.question_type' => 'required|in:text,textarea,product_suggestion,product_selection',
+                'questions.*.question_type' => 'required|in:product_selection',
                 'questions.*.placeholder' => 'nullable|string',
                 'questions.*.is_required' => 'boolean',
                 'questions.*.order' => 'integer',
                 // product_ids, when provided, must be valid product ids
                 'questions.*.product_ids' => 'nullable|array',
-                'questions.*.product_ids.*' => 'nullable|integer|exists:products,id',
+                'questions.*.product_ids.*' => 'integer|exists:products,id',
             ]);
 
         if ($validator->fails()) {
