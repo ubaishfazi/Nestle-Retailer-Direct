@@ -23,8 +23,32 @@ class InvoiceController extends Controller
       */
      public function index()
      {
+         $user = Auth::user();
+
+         // For distributors, auto-generate invoices for approved orders that don't have invoices yet
+         if ($user->isDistributor()) {
+             $approvedOrdersWithoutInvoices = Order::where('distributor_id', $user->id)
+                 ->where('status', 'approved')
+                 ->whereDoesntHave('invoice')
+                 ->get();
+
+             foreach ($approvedOrdersWithoutInvoices as $order) {
+                 try {
+                     app(InvoiceService::class)->generateInvoice($order);
+                 } catch (\Exception $e) {
+                     \Log::error('Failed to generate invoice for order', [
+                         'order_id' => $order->id,
+                         'error' => $e->getMessage(),
+                     ]);
+                 }
+             }
+         }
+
          $invoices = Invoice::with(['order.items.product', 'distributor'])
-             ->where('user_id', Auth::id())
+             ->where(function ($query) use ($user) {
+                 $query->where('user_id', $user->id)
+                       ->orWhere('distributor_id', $user->id);
+             })
              ->latest()
              ->get()
              ->map(function ($invoice) {
@@ -48,8 +72,14 @@ class InvoiceController extends Controller
              });
 
         $stats = [
-            'total_invoices' => (int) Invoice::where('user_id', Auth::id())->count(),
-            'total_spent' => (float) Invoice::where('user_id', Auth::id())->sum('total_amount'),
+            'total_invoices' => (int) Invoice::where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('distributor_id', $user->id);
+            })->count(),
+            'total_spent' => (float) Invoice::where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('distributor_id', $user->id);
+            })->sum('total_amount'),
         ];
 
          return Inertia::render('InvoiceArchive', [

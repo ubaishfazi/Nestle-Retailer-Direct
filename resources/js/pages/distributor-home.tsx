@@ -11,6 +11,7 @@ import {
     Users,
     Bell,
     FileText,
+    Receipt,
 } from 'lucide-react';
 
 interface Props {
@@ -46,11 +47,11 @@ const distributorSections = [
         isComingSoon: false,
     },
     {
-        area: 'Order Statistics',
-        icon: BarChart3,
-        href: '/distributor/statistics',
-        description: 'View performance',
-        isComingSoon: true,
+        area: 'Invoice',
+        icon: Receipt,
+        href: '/invoices',
+        description: 'View invoices',
+        isComingSoon: false,
     },
     {
         area: 'Delivery Schedule',
