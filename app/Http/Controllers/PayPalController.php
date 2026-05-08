@@ -53,6 +53,7 @@ class PayPalController extends Controller
         $loyaltyDiscountAmount = $orderData['loyalty_discount_amount'] ?? 0;
         $usedLoyaltyDiscount = $orderData['used_loyalty_discount'] ?? false;
         $promoCode = $orderData['promo_code'] ?? null;
+        $recommendationDiscountPercent = $orderData['recommendation_discount_percent'] ?? null;
 
         // Subtract the discount from total
         $totalAmount -= $discountAmount;
@@ -70,6 +71,7 @@ class PayPalController extends Controller
                 'loyalty_discount_amount' => $loyaltyDiscountAmount,
                 'used_loyalty_discount' => $usedLoyaltyDiscount,
                 'promo_code' => $promoCode,
+                'recommendation_discount_percent' => $recommendationDiscountPercent,
             ],
         ]);
 

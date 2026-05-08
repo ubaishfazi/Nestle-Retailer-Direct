@@ -155,8 +155,17 @@ export default function QuickReorder({ products, distributors }: Props) {
     const { toast } = useToast();
     const { loyalty: initialLoyalty } = usePage().props;
 
-    // Safe array conversion
-    const safeProducts = Array.isArray(products) ? products : [];
+    // Read recommendation params from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const recommendId = urlParams.get('recommend');
+    const recommendDiscount = Number(urlParams.get('discount')) || 0;
+
+    // Safe array conversion - filter to only recommended product if param present
+    const safeProducts = Array.isArray(products)
+        ? (recommendId
+              ? products.filter((p) => p && p.id === Number(recommendId))
+              : products)
+        : [];
     const safeDistributors = Array.isArray(distributors) ? distributors : [];
 
     // Extract unique cities from distributors
@@ -181,10 +190,10 @@ export default function QuickReorder({ products, distributors }: Props) {
             .map((product) => ({
                 ...product,
                 ...getStockStatus(product.stock_quantity),
-                quantity: 0,
-                warehouse_quantity: 0, // Reset to 0 until distributor is selected
-                warehouse_status: 'Out of Stock',
-                warehouse_statusColor: 'text-gray-500',
+                quantity: recommendId && String(product.id) === recommendId ? 1 : 0,
+                warehouse_quantity: product.warehouse_quantity ?? 0,
+                warehouse_status: product.warehouse_quantity > 0 ? 'In Stock' : 'Out of Stock',
+                warehouse_statusColor: product.warehouse_quantity > 0 ? 'text-emerald-600' : 'text-gray-500',
             })),
     );
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -463,10 +472,11 @@ export default function QuickReorder({ products, distributors }: Props) {
             return;
         }
 
-        const orderData = {
+        const orderData: Record<string, unknown> = {
             distributor_id: selectedDistributor.id,
             payment_method: selectedPaymentMethod,
             promo_code: appliedPromo ? appliedPromo.promo_code : null,
+            recommendation_discount_percent: recommendDiscount || null,
             items: itemsToOrder.map((item) => ({
                 product_id: item.id,
                 product_name: item.name,
@@ -637,10 +647,11 @@ export default function QuickReorder({ products, distributors }: Props) {
             return;
         }
 
-        const orderData = {
+        const orderData: Record<string, unknown> = {
             distributor_id: selectedDistributor.id,
             payment_method: 'credit_card',
             promo_code: appliedPromo ? appliedPromo.promo_code : null,
+            recommendation_discount_percent: recommendDiscount || null,
             items: itemsToOrder.map((item) => ({
                 product_id: item.id,
                 product_name: item.name,
@@ -711,9 +722,14 @@ export default function QuickReorder({ products, distributors }: Props) {
     const promoDiscountAmount = appliedPromo ? appliedPromo.discount_amount : 0;
     const loyaltyDiscountAmount = loyaltyDiscount ? loyaltyDiscount.discountAmount : 0;
 
-    // Use the better discount
+    const recommendationDiscountAmount = recommendDiscount > 0
+        ? totalAmount * (recommendDiscount / 100)
+        : 0;
+
+    // Use the better discount (promo or loyalty)
     const bestDiscountAmount = Math.max(promoDiscountAmount, loyaltyDiscountAmount);
-    const discountedTotal = totalAmount - bestDiscountAmount;
+    const totalDiscount = bestDiscountAmount + recommendationDiscountAmount;
+    const discountedTotal = totalAmount - totalDiscount;
 
     // Determine which discount is applied (the best one) for display
     const appliedDiscountElement = (() => {
@@ -721,33 +737,40 @@ export default function QuickReorder({ products, distributors }: Props) {
         const hasPromo = appliedPromo && promoDiscountAmount > epsilon;
         const hasLoyalty = loyaltyDiscount && loyaltyDiscount.hasDiscount && loyaltyDiscountAmount > epsilon;
 
-        if (!hasPromo && !hasLoyalty) return null;
-
-        if (hasPromo && Math.abs(bestDiscountAmount - promoDiscountAmount) < epsilon) {
-            return (
-                <div className="mb-2 flex items-center justify-between text-emerald-600">
-                    <span className="text-xs md:text-sm">
-                        Discount ({appliedPromo.discount_type === 'percentage' ? `${appliedPromo.discount_value}%` : `LKR ${appliedPromo.discount_value.toFixed(2)}`})
-                    </span>
-                    <span className="text-sm font-semibold md:text-base">
-                        - LKR {promoDiscountAmount.toFixed(2)}
-                    </span>
-                </div>
-            );
-        }
-        if (hasLoyalty && Math.abs(bestDiscountAmount - loyaltyDiscountAmount) < epsilon) {
-            return (
-                <div className="mb-2 flex items-center justify-between text-emerald-600">
-                    <span className="text-xs md:text-sm">
-                        Loyalty Discount ({loyaltyDiscount.tierName} - {loyaltyDiscount.discountValue}%)
-                    </span>
-                    <span className="text-sm font-semibold md:text-base">
-                        - LKR {loyaltyDiscountAmount.toFixed(2)}
-                    </span>
-                </div>
-            );
-        }
-        return null;
+        return (
+            <>
+                {hasPromo && Math.abs(bestDiscountAmount - promoDiscountAmount) < epsilon && (
+                    <div className="mb-2 flex items-center justify-between text-emerald-600">
+                        <span className="text-xs md:text-sm">
+                            Discount ({appliedPromo.discount_type === 'percentage' ? `${appliedPromo.discount_value}%` : `LKR ${appliedPromo.discount_value.toFixed(2)}`})
+                        </span>
+                        <span className="text-sm font-semibold md:text-base">
+                            - LKR {promoDiscountAmount.toFixed(2)}
+                        </span>
+                    </div>
+                )}
+                {hasLoyalty && Math.abs(bestDiscountAmount - loyaltyDiscountAmount) < epsilon && (
+                    <div className="mb-2 flex items-center justify-between text-emerald-600">
+                        <span className="text-xs md:text-sm">
+                            Loyalty Discount ({loyaltyDiscount.tierName} - {loyaltyDiscount.discountValue}%)
+                        </span>
+                        <span className="text-sm font-semibold md:text-base">
+                            - LKR {loyaltyDiscountAmount.toFixed(2)}
+                        </span>
+                    </div>
+                )}
+                {recommendationDiscountAmount > epsilon && (
+                    <div className="mb-2 flex items-center justify-between text-emerald-600">
+                        <span className="text-xs md:text-sm">
+                            Recommendation Discount ({recommendDiscount}%)
+                        </span>
+                        <span className="text-sm font-semibold md:text-base">
+                            - LKR {recommendationDiscountAmount.toFixed(2)}
+                        </span>
+                    </div>
+                )}
+            </>
+        );
     })();
 
     // Fetch loyalty discount when totalAmount changes
@@ -1001,6 +1024,20 @@ export default function QuickReorder({ products, distributors }: Props) {
                                                     '0.00'}{' '}
                                                 each
                                             </p>
+                                            {recommendDiscount > 0 && order.quantity > 0 && (
+                                                <p className="mt-0.5 text-xs font-medium text-emerald-600">
+                                                    <Tag className="mr-0.5 inline h-3 w-3" />
+                                                    {recommendDiscount}% OFF • Recommendation
+                                                </p>
+                                            )}
+                                            {appliedPromo && order.quantity > 0 && (
+                                                <p className="mt-0.5 text-xs font-medium text-emerald-600">
+                                                    {appliedPromo.discount_type === 'percentage'
+                                                        ? `${appliedPromo.discount_value}% OFF`
+                                                        : `LKR ${Number(appliedPromo.discount_value).toFixed(2)} OFF`}
+                                                    {appliedPromo.title && ` • ${appliedPromo.title}`}
+                                                </p>
+                                            )}
                                         </div>
 
                                         <div className="flex flex-col items-center gap-1">
