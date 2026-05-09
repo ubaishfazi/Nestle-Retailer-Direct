@@ -164,6 +164,7 @@ export default function AdminSurveysEdit({ survey }: Props) {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN':
                         (
                             document.querySelector(
