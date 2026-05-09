@@ -111,6 +111,9 @@ class SurveyController extends Controller
         ]);
 
         if ($validator->fails()) {
+            if ($request->expectsJson() || $request->isJson()) {
+                return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            }
             return back()->withErrors($validator)->withInput();
         }
 
@@ -120,6 +123,9 @@ class SurveyController extends Controller
             ->first();
 
         if (!$distributor) {
+            if ($request->expectsJson() || $request->isJson()) {
+                return response()->json(['success' => false, 'errors' => ['distributor' => ['No approved distributor found. Please add a distributor first.']]], 422);
+            }
             return back()->withErrors(['distributor' => 'No approved distributor found. Please add a distributor first.'])->withInput();
         }
 
@@ -717,19 +723,17 @@ class SurveyController extends Controller
                 $options = ['product_ids' => $questionData['product_ids']];
             }
 
-            if (isset($questionData['id'])) {
-                $question = SurveyQuestion::find($questionData['id']);
-                if ($question && $question->survey_id === $survey->id) {
-                    $question->update([
-                        'question_text' => $questionData['question_text'],
-                        'question_type' => $questionData['question_type'],
-                        'placeholder' => $questionData['placeholder'] ?? null,
-                        'is_required' => $questionData['is_required'] ?? true,
-                        'order' => $questionData['order'] ?? $index,
-                        'options' => $options,
-                    ]);
-                    $existingQuestionIds[] = $question->id;
-                }
+            $question = isset($questionData['id']) ? SurveyQuestion::find($questionData['id']) : null;
+            if ($question && $question->survey_id === $survey->id) {
+                $question->update([
+                    'question_text' => $questionData['question_text'],
+                    'question_type' => $questionData['question_type'],
+                    'placeholder' => $questionData['placeholder'] ?? null,
+                    'is_required' => $questionData['is_required'] ?? true,
+                    'order' => $questionData['order'] ?? $index,
+                    'options' => $options,
+                ]);
+                $existingQuestionIds[] = $question->id;
             } else {
                 $newQuestion = $survey->questions()->create([
                     'question_text' => $questionData['question_text'],

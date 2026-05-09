@@ -10,6 +10,8 @@ import {
     DollarSign,
     FileText,
     Clipboard,
+    Package,
+    Clock,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -45,6 +47,16 @@ interface ActiveSurvey {
     questions: SurveyQuestion[];
 }
 
+interface RecommendationProduct {
+    id: number;
+    name: string;
+    price: number;
+    image: string;
+    order_count: number;
+    total_quantity: number;
+    discount_percent: number;
+}
+
 export default function NestleSystemAnalysis({
     canRegister = true,
 }: {
@@ -56,6 +68,8 @@ export default function NestleSystemAnalysis({
     const [loading, setLoading] = useState(false);
     const [surveys, setSurveys] = useState<ActiveSurvey[]>([]);
     const [surveysLoading, setSurveysLoading] = useState(false);
+    const [recommendation, setRecommendation] = useState<RecommendationProduct | null>(null);
+    const [recommendationLoading, setRecommendationLoading] = useState(true);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -87,6 +101,23 @@ export default function NestleSystemAnalysis({
                 });
         }
     }, [showPromotions, promotions.length]);
+
+    // Fetch recommendation on mount
+    useEffect(() => {
+        const fetchRecommendation = async () => {
+            try {
+                const response = await fetch('/api/recommendations');
+                const data = await response.json();
+                setRecommendation(data.recommendation || null);
+            } catch (error) {
+                console.error('Error fetching recommendation:', error);
+            } finally {
+                setRecommendationLoading(false);
+            }
+        };
+
+        fetchRecommendation();
+    }, []);
 
     // Fetch active surveys on mount
     useEffect(() => {
@@ -120,7 +151,39 @@ export default function NestleSystemAnalysis({
             <Head title="Nestlé System Analysis" />
             <div className="flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-blue-950 dark:via-slate-900 dark:to-blue-900">
                 {/* Cards Container */}
-                <div className="mx-auto flex w-full max-w-4xl flex-col justify-center gap-4 px-4 pb-28 md:gap-10 md:pb-32">
+                <div className="mx-auto flex w-full max-w-4xl flex-col justify-center gap-4 px-4 pb-28 md:gap-6 md:pb-32">
+                    {/* Recommendation - compact line */}
+                    {!recommendationLoading && recommendation && (
+                        <a
+                            href={`/quick-reorder?recommend=${recommendation.id}&discount=${recommendation.discount_percent}`}
+                            className="group flex items-center gap-3 rounded-xl border border-blue-200/60 bg-blue-50/80 px-4 py-3 shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-blue-100/80 hover:shadow-md dark:border-blue-800/40 dark:bg-blue-950/30 dark:hover:bg-blue-900/40"
+                        >
+                            <Package className="h-4 w-4 flex-shrink-0 text-blue-600 dark:text-blue-400" />
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                Reorder{' '}
+                                <span className="font-semibold text-slate-900 dark:text-white">
+                                    {recommendation.name}
+                                </span>
+                            </span>
+                            <span className="inline-flex items-center gap-1 rounded-full bg-blue-200/60 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-800/40 dark:text-blue-300">
+                                <Clock className="h-3 w-3" />
+                                {recommendation.order_count}x
+                            </span>
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-200/60 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-800/40 dark:text-emerald-300">
+                                <Tag className="h-3 w-3" />
+                                {recommendation.discount_percent}% OFF
+                            </span>
+                            <svg
+                                className="ml-auto h-4 w-4 flex-shrink-0 text-blue-400 transition-transform group-hover:translate-x-0.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    )}
+
                     {/* Mobile Layout - 2 rows x 2 cols */}
                     <div className="flex flex-col gap-4 md:hidden">
                         {/* Row 1 - One-Tap Reorder + Complaints */}

@@ -10,6 +10,7 @@ use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\QuickReorderController;
+use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\RetailerInventoryController;
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -178,6 +179,9 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 // Promo code validation routes (authenticated users)
 Route::middleware(['auth'])->post('/api/promo-code/validate', [PromotionController::class, 'validatePromoCode'])->name('api.promo-code.validate');
 Route::middleware(['auth'])->get('/api/promotions/active', [PromotionController::class, 'activePromotions'])->name('api.promotions.active');
+
+// Recommendation routes (authenticated users)
+Route::middleware(['auth'])->get('/api/recommendations', [RecommendationController::class, 'index']);
 
 // Loyalty routes (authenticated users)
 Route::middleware(['auth'])->get('/api/loyalty/status', [LoyaltyController::class, 'status'])->name('api.loyalty.status');

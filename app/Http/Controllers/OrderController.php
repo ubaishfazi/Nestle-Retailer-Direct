@@ -33,6 +33,7 @@ class OrderController extends Controller
             'distributor_id' => 'required|integer|exists:users,id',
             'payment_method' => 'nullable|in:cod,paypal,credit_card',
             'promo_code' => 'nullable|string',
+            'recommendation_discount_percent' => 'nullable|numeric|min:0|max:100',
         ], [
             'items.required' => 'Please select at least one item to order.',
             'items.min' => 'Please select at least one item to order.',
@@ -133,6 +134,18 @@ class OrderController extends Controller
             }
         }
 
+        // Apply recommendation discount (separate from promotions/loyalty)
+        $recommendationDiscountAmount = 0;
+        if (!empty($validated['recommendation_discount_percent'])) {
+            $percent = (float) $validated['recommendation_discount_percent'];
+            $recommendationDiscountAmount = round($totalAmount * $percent / 100, 2);
+            if ($recommendationDiscountAmount > 0) {
+                $discountAmount += $recommendationDiscountAmount;
+                $totalAmount -= $recommendationDiscountAmount;
+                $totalAmount = max(0, $totalAmount);
+            }
+        }
+
         // For PayPal payment, redirect to PayPal controller with order data (don't create order yet)
         if ($validated['payment_method'] === 'paypal') {
             // Return JSON with redirect URL to PayPal process endpoint
@@ -148,6 +161,7 @@ class OrderController extends Controller
                     'loyalty_discount_amount' => $loyaltyDiscountAmount,
                     'used_loyalty_discount' => $usedLoyaltyDiscount,
                     'promo_code' => $validated['promo_code'] ?? null,
+                    'recommendation_discount_percent' => $validated['recommendation_discount_percent'] ?? null,
                 ],
             ]);
         }
