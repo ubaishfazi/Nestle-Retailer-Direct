@@ -33,6 +33,7 @@ export default function DistributorSurveysEdit({ survey }: Props) {
     const [startDate, setStartDate] = useState(survey.start_date || '');
     const [expiryDate, setExpiryDate] = useState(survey.expiry_date || '');
     const [submitting, setSubmitting] = useState(false);
+    const csrf_token = (usePage().props as any)?.csrf_token as string | undefined;
     const pageFlash = (usePage().props as any)?.flash;
 
     useEffect(() => {
@@ -100,11 +101,13 @@ export default function DistributorSurveysEdit({ survey }: Props) {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN':
+                        csrf_token ||
                         (
                             document.querySelector(
                                 'meta[name="csrf-token"]',
                             ) as HTMLMetaElement
-                        )?.content || '',
+                        )?.content ||
+                        '',
                 },
                 body: JSON.stringify({
                     title,

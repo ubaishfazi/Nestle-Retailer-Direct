@@ -62,6 +62,7 @@ export default function AdminSurveysEdit({ survey }: Props) {
     const [expiryDate, setExpiryDate] = useState(survey.expiry_date || '');
     const [submitting, setSubmitting] = useState(false);
     const { toast } = useToast();
+    const csrf_token = (usePage().props as any)?.csrf_token as string | undefined;
     const pageFlash = (usePage().props as any)?.flash;
 
     useEffect(() => {
@@ -166,11 +167,13 @@ export default function AdminSurveysEdit({ survey }: Props) {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN':
+                        csrf_token ||
                         (
                             document.querySelector(
                                 'meta[name="csrf-token"]',
                             ) as HTMLMetaElement
-                        )?.content || '',
+                        )?.content ||
+                        '',
                 },
                 body: JSON.stringify({
                     title,
