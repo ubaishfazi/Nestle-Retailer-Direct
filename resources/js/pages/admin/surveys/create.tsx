@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
@@ -49,6 +49,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function AdminSurveysCreate() {
+    const { csrf_token } = usePage().props as { csrf_token?: string };
     const [questions, setQuestions] = useState<Question[]>([
         {
             question_text: '',
@@ -158,11 +159,13 @@ export default function AdminSurveysCreate() {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN':
+                        csrf_token ||
                         (
                             document.querySelector(
                                 'meta[name="csrf-token"]',
                             ) as HTMLMetaElement
-                        )?.content || '',
+                        )?.content ||
+                        '',
                 },
                 body: JSON.stringify({
                     title,

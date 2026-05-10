@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ArrowLeft, Plus, Trash2, ClipboardList } from 'lucide-react';
 import { useState } from 'react';
 
@@ -12,6 +12,7 @@ interface Question {
 }
 
 export default function DistributorSurveysCreate() {
+    const { csrf_token } = usePage().props as { csrf_token?: string };
     const [questions, setQuestions] = useState<Question[]>([
         {
             question_text: '',
@@ -84,11 +85,13 @@ export default function DistributorSurveysCreate() {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN':
+                        csrf_token ||
                         (
                             document.querySelector(
                                 'meta[name="csrf-token"]',
                             ) as HTMLMetaElement
-                        )?.content || '',
+                        )?.content ||
+                        '',
                 },
                 body: JSON.stringify({
                     title,
