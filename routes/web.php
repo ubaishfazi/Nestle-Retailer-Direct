@@ -82,6 +82,9 @@ Route::middleware(['auth', 'verified', 'distributor'])->group(function () {
     // Distributor complaints routes
     Route::get('/distributor/complaints', [ComplaintController::class, 'distributorIndex'])->name('distributor.complaints.index');
     Route::get('/distributor/complaints/{complaint}', [ComplaintController::class, 'distributorShow'])->name('distributor.complaints.show');
+    Route::post('/distributor/complaints/{complaint}/approve', [ComplaintController::class, 'distributorApprove'])->name('distributor.complaints.approve');
+    Route::post('/distributor/complaints/{complaint}/reject', [ComplaintController::class, 'distributorReject'])->name('distributor.complaints.reject');
+    Route::post('/distributor/complaints/{complaint}/mark-pending', [ComplaintController::class, 'distributorMarkPending'])->name('distributor.complaints.mark-pending');
 
     // Distributor feedback route
     Route::get('/distributor/feedback', [FeedbackController::class, 'distributorIndex'])->name('distributor.feedback');
